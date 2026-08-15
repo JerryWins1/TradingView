@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Ryan">
-  <title>Ryan</title>
-  <!-- Small-size variant: wick removed, letterform enlarged so it holds at 16px. -->
-  <rect width="128" height="128" rx="26" fill="#0E2740"/>
-  <g transform="translate(64,64) scale(1.2) translate(-64,-64)">
-    <path fill="#FFFFFF" d="M36 34 H72 A16 16 0 0 1 72 66 H50 V94 H36 Z M50 56 H72 A6 6 0 0 0 72 44 H50 Z M56 62 H72 L90 94 H74 Z"/>
-  </g>
-</svg>
