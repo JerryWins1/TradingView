@@ -24,7 +24,7 @@ and a vertebral column are the same shape.
 
 **Varsity** — `varsity-*.svg`
 TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
-diamond. The most straightforward of the three and the one that reads fastest
+diamond. The most straightforward of the six and the one that reads fastest
 across a room. Safe for any kind of team.
 
 **Roundel** — `roundel-*.svg`
@@ -37,7 +37,7 @@ A vertebral column beside the name, drawn as a side view — bodies plus spinous
 processes, tapering cervical to lumbar, and dead straight, which is
 *Straight Up Spine & Posture* taken literally. This is the concept tied to the
 practice Ryan founded in 2016 and to what most people knew him for. It is also
-the widest and shortest of the four, which suits a cap front better than the
+the widest and shortest of the six, which suits a cap front better than the
 rest.
 
 **Bubbles** — `bubbles-*.svg`
@@ -53,6 +53,8 @@ is still working through. Your call entirely.
 | --- | --- | --- |
 | `-on-dark` | Cream + gold | Navy, black, charcoal caps |
 | `-on-light` | Navy + gold | Khaki, stone, natural, white caps |
+
+The two Luna marks substitute moth green for gold in both two-colour cuts.
 | `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 ## Thread colour
@@ -62,6 +64,7 @@ is still working through. Your call entirely.
 | Cream | `#F6F1E5` | Madeira 1082 / Isacord 0670 — off-white |
 | Navy | `#17293F` | Madeira 1243 / Isacord 3554 — navy |
 | Gold | `#D9A441` | Madeira 1126 / Isacord 0702 — old gold |
+| Moth green | `#AFD46A` | Madeira 1370 / Isacord 6011 — the Luna marks |
 
 Match to the shop's own thread book rather than trusting these on screen. Ask for
 a stitch-out on the actual cap colour before the full run.
@@ -76,8 +79,8 @@ raster image.
 Tell them:
 
 - **Placement:** cap front, centred, standard 6-panel
-- **Size:** 4.5in wide max on the varsity and bubbles marks; 2.25in tall on the roundel
-- **Stitch:** satin on all lettering; the bubbles run as satin-filled dots
+- **Size:** 4.5in wide max on every mark except the roundel, which is 2.25in tall
+- **Stitch:** satin on all lettering; bubbles and eyespots run as satin-filled shapes
 
 ### Why these are built the way they are
 
@@ -88,12 +91,13 @@ drawn to stay above it:
   clear of the ~1.5mm minimum
 - No text stitches below roughly 0.2in cap height, which is what set the roundel's
   internal sizes
-- The smallest bubble is 2.4mm across
+- The smallest bubble is 2.4mm across, and the Luna tails and antennae hold
+  about 1.8mm — drawn fatter than the real moth, which would stitch at ~1mm
 - No gradients, no hairlines, and never more than two thread colours
 - Letterforms are drawn as outlines, so there is no font to license or supply
 
 On a structured 6-panel cap the centre seam runs straight through the middle of
-the design. All three marks have open space on the centreline — no counter or fine
+the design. All six marks have open space on the centreline — no counter or fine
 detail lands on the seam, where it would distort.
 
 ## Still open
