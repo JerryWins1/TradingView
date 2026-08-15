@@ -34,6 +34,7 @@ is still working through. Your call entirely.
 | --- | --- | --- |
 | `-on-dark` | Cream + green | Navy, black, charcoal caps |
 | `-on-light` | Navy + green | Khaki, stone, natural, white caps |
+| `-on-green` | Navy + cream | **Lime / neon / safety-green caps and visors** |
 | `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 ## Thread colour
@@ -43,6 +44,10 @@ is still working through. Your call entirely.
 | Practice green | `#8CC63F` | The green from the Straight Up logo — bright yellow-green |
 | Cream | `#F6F1E5` | Soft off-white, not a stark bright white |
 | Navy | `#17293F` | Deep, near-black navy |
+
+On a lime cap the green accent disappears into the fabric, which is why
+`-on-green` exists: dark type with a cream rule, the same dark-on-green
+relationship the practice logo already uses.
 
 Take the hex values to the shop and match against their own thread book. Screens
 lie, and thread codes vary by brand and range, so match to the swatch rather than
@@ -87,6 +92,36 @@ against a cap and the size question answers itself.
 
 **Print at 100% / Actual Size, not Fit to Page**, or the true-size panel is not
 true. Regenerate with `node make-print-sheets.js`.
+
+## Ordering blanks
+
+**Let the embroiderer buy the hats.** The big blank distributors (SanMar,
+S&S Activewear, alphabroder) are trade-only, so a shop gets pricing you cannot,
+and many shops either surcharge or refuse "customer-supplied goods" because they
+carry the loss if they ruin one. One invoice, one party responsible.
+
+Colour names to ask for, roughly warmest to coolest:
+
+| Name | Notes |
+| --- | --- |
+| Safety Green / Hi-Vis Lime | Yellowest. Very bright, often polyester |
+| Neon Green / Electric Green | Close to the practice green |
+| Lime / Lime Green | Usually the nearest match to `#8CC63F` |
+| Kiwi / Apple | Deeper, less fluorescent |
+
+Cap colour does not have to match `#8CC63F` exactly. The green is the *cap* now,
+not the thread, so any good lime works — the artwork is navy and cream over it.
+
+Models that come in these greens and take embroidery well: Richardson 112
+(structured trucker, the default team cap), Flexfit/Yupoong 6277 and 110, Otto
+Cap (widest cheap colour range), Pacific Headwear, Port & Company CP80. For
+visors: Port Authority CP45, Otto and Pacific Headwear visors, Adams.
+
+Prefer a **structured** front — soft unstructured "dad" caps let a wide mark sag.
+
+**Visors take the same artwork** but the band is shorter than a cap front. The
+varsity mark is 4.5 x 1.65in, which fits, but tell the shop it is going on a
+visor so they allow for the curve.
 
 ## Still open
 

@@ -57,6 +57,10 @@ const C = { cream: '#F6F1E5', navy: '#17293F', green: '#8CC63F' };
 const WAYS = {
   'on-dark':  [C.cream, C.green],
   'on-light': [C.navy,  C.green],
+  // On a lime cap the green accent vanishes into the fabric, so the green cap
+  // gets its own cut: dark ink with a cream accent, the practice logo's own
+  // dark-on-green relationship.
+  'on-green': [C.navy,  C.cream],
   '1color':   ['currentColor', 'currentColor'],
 };
 
