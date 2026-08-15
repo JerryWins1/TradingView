@@ -13,6 +13,8 @@ const svg = (name, cls) =>
     .replace(/<svg /, `<svg class="${cls}" `);
 
 const CONCEPTS = [
+  { slug: 'rise', name: 'Rise', blurb:
+    'The caterpillar low on the left, the moth high on the right, and the diffuser plume rising between them — the bubbles Ryan was designing doing the work of the change. His tattoos and his engineering in one mark, read left to right and bottom to top.' },
   { slug: 'luna', name: 'Luna', blurb:
     'The moth from Ryan’s tattoo — <i>Actias luna</i>, drawn to the real proportions of the species: the near-straight forewing edge, the eyespots, the feathery antennae, and the long trailing tails. Stitched in moth green.' },
   { slug: 'metamorphosis', name: 'Metamorphosis', blurb:
@@ -20,7 +22,7 @@ const CONCEPTS = [
   { slug: 'spine', name: 'Spine', blurb:
     'A vertebral column beside the name, seen from the side and perfectly straight — which is <i>Straight Up Spine &amp; Posture</i> taken literally. The concept tied to the practice rather than to the tattoos.' },
   { slug: 'varsity', name: 'Varsity', blurb:
-    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the six and the one that reads fastest from across a room.' },
+    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the seven and the one that reads fastest from across a room.' },
   { slug: 'roundel', name: 'Roundel', blurb:
     'A patch-style badge: an RL monogram in a double ring with the full name beneath. Holds together at the smallest size, so it also works on a shirt or a jacket.' },
   { slug: 'bubbles', name: 'Bubbles', blurb:
@@ -161,8 +163,8 @@ const sheet = (c, i, total) => {
     console.log('wrote', `${i + 1}-${c.slug}.pdf`);
   }
   await render(CONCEPTS.map((c, i) => sheet(c, i, CONCEPTS.length)).join('\n'),
-               `${OUT}/all-six-concepts.pdf`);
-  console.log('wrote all-six-concepts.pdf');
+               `${OUT}/all-seven-concepts.pdf`);
+  console.log('wrote all-seven-concepts.pdf');
 
   fs.unlinkSync(`${OUT}/_tmp.html`);
   await browser.close();

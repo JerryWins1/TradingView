@@ -285,9 +285,32 @@ function metamorphosis() {
   };
 }
 
+// ── Concept 7: Rise ───────────────────────────────────────────────────────
+// Larva low on the left, moth high on the right, and the diffuser plume rising
+// diagonally between them — the bubbles doing the work of the transformation.
+// Creatures in moth green; bubbles in the ink colour so they read as air rather
+// than as more of the animal, and so it still stitches in two threads.
+function rise() {
+  const W = 480, H = 228, cx = W / 2;
+  const m = lunaMoth(345, 4, 0.50);     // moth  x 345..465, y 4..104
+  const c = lunaLarva(14, 60, 0.75);    // larva x 14..127,  y 60..107
+  // Sizes alternate and the line is scattered off true, so the plume reads as
+  // bubbles rather than as a dotted leader. Smallest is 1.9mm stitched.
+  const plume = [
+    [138, 99, 4.5], [157, 90, 6.5], [174, 84, 4], [193, 74, 6], [209, 68, 4.5],
+    [228, 58, 7], [246, 52, 4.5], [264, 42, 6], [283, 36, 4], [301, 28, 6.5], [319, 22, 4.5],
+  ].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('\n    ');
+  return {
+    w: W, h: H, label: 'Team Ryan Lee', accentColor: LUNA_GREEN,
+    main: [m.body, m.spots, c.detail, plume,
+           block('TEAM', 24, cx, 118, 20), block('RYAN LEE', 56, cx, 150)].join('\n    '),
+    accent: [c.body, m.wings].join('\n    '),
+  };
+}
+
 const CONCEPTS = {
   varsity: varsity(), roundel: roundel(), bubbles: bubbles(), spine: spine(),
-  luna: luna(), metamorphosis: metamorphosis(),
+  luna: luna(), metamorphosis: metamorphosis(), rise: rise(),
 };
 
 for (const [name, spec] of Object.entries(CONCEPTS)) {

@@ -1,9 +1,18 @@
 # Team Ryan Lee — hat artwork
 
-Six concepts for an embroidered cap, in memory of Ryan Lee Winslow. Each one is
+Seven concepts for an embroidered cap, in memory of Ryan Lee Winslow. Each one is
 supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 
 ## The concepts
+
+**Rise** — `rise-*.svg`
+The caterpillar low on the left, the moth high on the right, and the diffuser
+plume rising diagonally between them — the bubbles doing the work of the change.
+Reads left to right and bottom to top at once. The only mark that carries the
+tattoos, the practice and the engineering together.
+
+Bubbles run in the ink colour rather than moth green, so they read as air rather
+than as more of the animal, and so the mark still stitches in two threads.
 
 **Luna** — `luna-*.svg`
 The moth from the tattoo: *Actias luna*, drawn to its own proportions — the
@@ -24,7 +33,7 @@ and a vertebral column are the same shape.
 
 **Varsity** — `varsity-*.svg`
 TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
-diamond. The most straightforward of the six and the one that reads fastest
+diamond. The most straightforward of the seven and the one that reads fastest
 across a room. Safe for any kind of team.
 
 **Roundel** — `roundel-*.svg`
@@ -37,7 +46,7 @@ A vertebral column beside the name, drawn as a side view — bodies plus spinous
 processes, tapering cervical to lumbar, and dead straight, which is
 *Straight Up Spine & Posture* taken literally. This is the concept tied to the
 practice Ryan founded in 2016 and to what most people knew him for. It is also
-the widest and shortest of the six, which suits a cap front better than the
+the widest and shortest of the seven, which suits a cap front better than the
 rest.
 
 **Bubbles** — `bubbles-*.svg`
@@ -54,7 +63,8 @@ is still working through. Your call entirely.
 | `-on-dark` | Cream + gold | Navy, black, charcoal caps |
 | `-on-light` | Navy + gold | Khaki, stone, natural, white caps |
 
-The two Luna marks substitute moth green for gold in both two-colour cuts.
+The Rise, Luna and Metamorphosis marks substitute moth green for gold in both
+two-colour cuts.
 | `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 ## Thread colour
@@ -97,8 +107,19 @@ drawn to stay above it:
 - Letterforms are drawn as outlines, so there is no font to license or supply
 
 On a structured 6-panel cap the centre seam runs straight through the middle of
-the design. All six marks have open space on the centreline — no counter or fine
+the design. All seven marks have open space on the centreline — no counter or fine
 detail lands on the seam, where it would distort.
+
+## Printable review sheets
+
+`print/` holds one letter-size PDF per concept plus `all-seven-concepts.pdf`,
+for printing and passing round. Each sheet shows the mark large, the khaki and
+single-thread cuts, and the mark at true stitched size inside a dashed
+4.5 x 2.25in rule — the real cap-front stitching area, printed 1:1. Hold the page
+against a cap and the size question answers itself.
+
+**Print at 100% / Actual Size, not Fit to Page**, or the true-size panel is not
+true. Regenerate with `node make-print-sheets.js`.
 
 ## Still open
 
