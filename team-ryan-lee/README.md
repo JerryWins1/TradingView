@@ -1,9 +1,26 @@
 # Team Ryan Lee — hat artwork
 
-Three concepts for an embroidered cap, in memory of Ryan Lee. Each one is
+Six concepts for an embroidered cap, in memory of Ryan Lee Winslow. Each one is
 supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 
 ## The concepts
+
+**Luna** — `luna-*.svg`
+The moth from the tattoo: *Actias luna*, drawn to its own proportions — the
+near-straight forewing leading edge, the eyespots, the plumose antennae, and the
+long trailing hindwing tails that are the signature of the species. Runs in moth
+green rather than gold.
+
+The tails and antennae are drawn deliberately fatter than life. At cap scale a
+true-to-nature Luna tail works out to roughly 1mm and would disappear; these hold
+about 1.8mm throughout.
+
+**Metamorphosis** — `metamorphosis-*.svg`
+Both tattoos together in reading order — larva left, moth right, the same animal
+twice. There is no arrow between them; the change in scale carries the
+progression, and an arrow would turn it into a diagram. The larva's segments are
+built from the same module as the spine concept, because a caterpillar's segments
+and a vertebral column are the same shape.
 
 **Varsity** — `varsity-*.svg`
 TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
