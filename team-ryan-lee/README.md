@@ -9,7 +9,7 @@ supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 The spine from the *Straight Up Spine & Posture* logo, redrawn as embroidery
 artwork rather than invented: the same angular, woodcut-style vertebrae with
 clean slashes between them, a smooth contour down the front and a jagged process
-edge down the back, over a heavier sacrum. In the practice's own green.
+edge down the back, over a heavier sacrum.
 
 Eight segments plus the sacrum. The practice logo packs in more, but at cap size
 the disc gaps have to clear the ~1.5mm stitch floor — more vertebrae would be
@@ -90,8 +90,8 @@ detail lands on the seam, where it would distort.
 ## Printable review sheets
 
 `print/` holds one letter-size PDF per concept plus `all-three-concepts.pdf`,
-for printing and passing round. Each sheet shows the mark large, the khaki and
-single-thread cuts, and the mark at true stitched size inside a dashed
+for printing and passing round. Each sheet shows the mark large on lime, the cream
+and navy cuts for other cap colours, and the mark at true stitched size in a dashed
 4.5 x 2.25in rule — the real cap-front stitching area, printed 1:1. Hold the page
 against a cap and the size question answers itself.
 
@@ -115,7 +115,7 @@ Colour names to ask for, roughly warmest to coolest:
 | Kiwi / Apple | Deeper, less fluorescent |
 
 Cap colour does not have to match `#8CC63F` exactly. The green is the *cap* now,
-not the thread, so any good lime works — the artwork is navy and cream over it.
+not the thread, so any good lime works — the artwork is a single charcoal over it.
 
 Models that come in these greens and take embroidery well: Richardson 112
 (structured trucker, the default team cap), Flexfit/Yupoong 6277 and 110, Otto
