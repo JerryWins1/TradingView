@@ -62,10 +62,10 @@ is still working through. Your call entirely.
 | --- | --- | --- |
 | `-on-dark` | Cream + gold | Navy, black, charcoal caps |
 | `-on-light` | Navy + gold | Khaki, stone, natural, white caps |
+| `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 The Rise, Luna and Metamorphosis marks substitute moth green for gold in both
 two-colour cuts.
-| `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 ## Thread colour
 
@@ -74,7 +74,7 @@ two-colour cuts.
 | Cream | `#F6F1E5` | Madeira 1082 / Isacord 0670 — off-white |
 | Navy | `#17293F` | Madeira 1243 / Isacord 3554 — navy |
 | Gold | `#D9A441` | Madeira 1126 / Isacord 0702 — old gold |
-| Moth green | `#AFD46A` | Madeira 1370 / Isacord 6011 — the Luna marks |
+| Moth green | `#AFD46A` | Madeira 1370 / Isacord 6011 — Rise, Luna, Metamorphosis |
 
 Match to the shop's own thread book rather than trusting these on screen. Ask for
 a stitch-out on the actual cap colour before the full run.
