@@ -50,27 +50,28 @@ function block(str, cap, cx, yTop, track = 0) {
     </g>`;
 }
 
-// Green and off-white taken from the Straight Up Spine & Posture logo.
-const C = { cream: '#F6F1E5', navy: '#17293F', green: '#8CC63F' };
+// Green taken from the Straight Up Spine & Posture logo; charcoal rather than
+// true black, which goes harsh against a fluorescent green.
+const C = { cream: '#F6F1E5', navy: '#17293F', green: '#8CC63F', charcoal: '#2E2E2E' };
 
-// colourway → [main ink, accent ink]
+// Every cut is a SINGLE thread. A two-tone version was tried and rejected: at
+// 4.5in a second dark reads as the same dark, so it costs a thread change and
+// buys nothing. One colour is cheaper to stitch and looks identical.
+// colourway → one ink
 const WAYS = {
-  'on-dark':  [C.cream, C.green],
-  'on-light': [C.navy,  C.green],
-  // On a lime cap the green accent vanishes into the fabric, so the green cap
-  // gets its own cut: dark ink with a cream accent, the practice logo's own
-  // dark-on-green relationship.
-  'on-green': [C.navy,  C.cream],
-  '1color':   ['currentColor', 'currentColor'],
+  'on-green': C.charcoal,   // lime / neon / safety-green caps and visors — production
+  'on-dark':  C.cream,      // navy, black, charcoal caps
+  'on-light': C.navy,       // khaki, stone, natural, white caps
+  '1color':   'currentColor',
 };
 
-function svg({ w, h, label, ink, accent, body }) {
+// Single fill group: one thread, and nothing behind it. The SVG has no
+// background — on the cap the ground is the fabric.
+function svg({ w, h, label, ink, body }) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${label}">
   <title>${label}</title>
   <g fill="${ink}">
     ${body.main}
-  </g>
-  <g fill="${accent}">
     ${body.accent}
   </g>
 </svg>
@@ -164,10 +165,10 @@ function spine() {
 const CONCEPTS = { spine: spine(), varsity: varsity(), bubbles: bubbles() };
 
 for (const [name, spec] of Object.entries(CONCEPTS)) {
-  for (const [way, [ink, accent]] of Object.entries(WAYS)) {
-    const body = { main: spec.main, accent: spec.accent.replaceAll("'ACCENT'", accent).replaceAll('ACCENT', accent) };
+  for (const [way, ink] of Object.entries(WAYS)) {
+    const body = { main: spec.main, accent: spec.accent.replaceAll("'ACCENT'", ink).replaceAll('ACCENT', ink) };
     const file = `${OUT}/${name}-${way}.svg`;
-    fs.writeFileSync(file, svg({ w: spec.w, h: spec.h, label: spec.label, ink, accent, body }));
+    fs.writeFileSync(file, svg({ w: spec.w, h: spec.h, label: spec.label, ink, body }));
     console.log('wrote', file.split('/').pop());
   }
 }

@@ -16,7 +16,7 @@ const CONCEPTS = [
   { slug: 'spine', name: 'Spine', blurb:
     'The spine from the <i>Straight Up Spine &amp; Posture</i> logo, redrawn as embroidery artwork — the same angular, woodcut-style vertebrae over a heavier sacrum, in the practice’s own green. The concept tied to the practice Ryan founded in 2016.' },
   { slug: 'varsity', name: 'Varsity', blurb:
-    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the three and the one that reads fastest from across a room.' },
+    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. Stitched in a single charcoal thread on a lime cap — the chosen design.' },
   { slug: 'bubbles', name: 'Bubbles', blurb:
     'A rising plume drawn from the fine-bubble diffuser Ryan was designing — bubbles leaving one source and spreading as they climb. The concept that points at his engineering work.' },
 ];
@@ -40,7 +40,7 @@ const CSS = `
        margin: 13px 0 0; letter-spacing: -.01em; }
   .blurb { font-size: 10pt; line-height: 1.5; color: #4A5563; margin: 7px 0 0; max-width: 6.1in; }
 
-  .hero { margin-top: 12px; background: #17293F; border-radius: 4px;
+  .hero { margin-top: 12px; background: #8CC63F; border-radius: 4px;
           padding: 20px 18px; display: flex; justify-content: center; align-items: center; }
   .hero svg { width: 4.6in; height: auto; }
   .hero.sq svg { width: 1.85in; }
@@ -48,8 +48,8 @@ const CSS = `
   .pair { margin-top: 10px; display: flex; gap: 10px; }
   .pair > figure { margin: 0; flex: 1; border: 1px solid #D5D5CE; border-radius: 4px; overflow: hidden; }
   .pair .win { padding: 12px 10px; display: flex; justify-content: center; align-items: center; min-height: 0.85in; }
-  .pair .khaki { background: #D9CDB4; }
-  .pair .one   { background: #3A3A38; color: #F6F1E5; }
+  .pair .khaki { background: #17293F; }
+  .pair .one   { background: #F2F2EE; }
   .pair svg { width: 2.1in; height: auto; }
   .pair.sq svg { width: 0.85in; }
   .pair figcaption { font-size: 7.5pt; color: #6B7580; padding: 4px 8px; border-top: 1px solid #E6E6E0; }
@@ -100,25 +100,25 @@ const sheet = (c, i, total) => {
     <h1>${c.name}</h1>
     <p class="blurb">${c.blurb}</p>
 
-    <div class="hero${sq}">${svg(`${c.slug}-on-dark`, '')}</div>
+    <div class="hero${sq}">${svg(`${c.slug}-on-green`, '')}</div>
 
     <div class="pair${sq}">
-      <figure><div class="win khaki">${svg(`${c.slug}-on-light`, '')}</div>
-        <figcaption>On a khaki or stone cap</figcaption></figure>
-      <figure><div class="win one">${svg(`${c.slug}-1color`, '')}</div>
-        <figcaption>One thread only — cheapest to stitch</figcaption></figure>
+      <figure><div class="win khaki">${svg(`${c.slug}-on-dark`, '')}</div>
+        <figcaption>Cream, on a navy or black cap</figcaption></figure>
+      <figure><div class="win one">${svg(`${c.slug}-on-light`, '')}</div>
+        <figcaption>Navy, on a white or stone cap</figcaption></figure>
     </div>
 
     <div class="actual">
       <p class="lede">Actual size on the hat — printed 1:1</p>
       <div class="area${sq}">
-        ${svg(`${c.slug}-on-light`, '')}
+        ${svg(`${c.slug}-on-green`, '')}
         <span class="dim w">4½ in — the full width of a cap front</span>
         <span class="dim h">2¼ in<br>tall</span>
       </div>
       <p class="tag">The dashed line is all the room there is to stitch into.
-        Hold this page against a cap to judge it. Shown in dark thread for clarity —
-        on a navy cap it stitches as above.</p>
+        Hold this page against a cap to judge it. One thread throughout —
+        charcoal on a lime cap.</p>
     </div>
 
     <div class="vote">

@@ -30,24 +30,28 @@ is still working through. Your call entirely.
 
 ## Colourways
 
-| Suffix | Threads | For |
+**Every cut is a single thread.** A two-tone version was tried and rejected: at
+4.5in a second dark reads as the same dark, so it costs a thread change and buys
+nothing visible. One colour is cheaper to stitch and looks identical.
+
+| Suffix | Thread | For |
 | --- | --- | --- |
-| `-on-dark` | Cream + green | Navy, black, charcoal caps |
-| `-on-light` | Navy + green | Khaki, stone, natural, white caps |
-| `-on-green` | Navy + cream | **Lime / neon / safety-green caps and visors** |
-| `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
+| `-on-green` | Charcoal `#2E2E2E` | **Lime / neon / safety-green caps and visors — the production cut** |
+| `-on-dark` | Cream `#F6F1E5` | Navy, black, charcoal caps |
+| `-on-light` | Navy `#17293F` | Khaki, stone, natural, white caps |
+| `-1color` | `currentColor` | Inherits whatever colour it is placed in |
+
+The SVGs have **no background**. Nothing sits behind the letters — on the cap the
+ground is the fabric itself.
 
 ## Thread colour
 
 | Name | Hex | What to ask for |
 | --- | --- | --- |
-| Practice green | `#8CC63F` | The green from the Straight Up logo — bright yellow-green |
+| Charcoal | `#2E2E2E` | Near-black, but softer than true black, which goes harsh against fluorescent green |
 | Cream | `#F6F1E5` | Soft off-white, not a stark bright white |
 | Navy | `#17293F` | Deep, near-black navy |
-
-On a lime cap the green accent disappears into the fabric, which is why
-`-on-green` exists: dark type with a cream rule, the same dark-on-green
-relationship the practice logo already uses.
+| Practice green | `#8CC63F` | The green from the Straight Up logo — for reference; it is the cap colour, not a thread |
 
 Take the hex values to the shop and match against their own thread book. Screens
 lie, and thread codes vary by brand and range, so match to the swatch rather than
@@ -64,7 +68,8 @@ Tell them:
 
 - **Placement:** cap front, centred, standard 6-panel
 - **Size:** 4.5in wide max, 2.25in tall
-- **Stitch:** satin on all lettering; bubbles and vertebrae run as satin-filled shapes
+- **Stitch:** satin throughout — one thread, no colour changes
+- **Background:** none. The cap fabric is the ground
 
 ### Why these are built the way they are
 
@@ -75,7 +80,7 @@ drawn to stay above it:
   clear of the ~1.5mm minimum
 - No text stitches below roughly 0.2in cap height
 - The smallest bubble is 2.4mm across; spine vertebrae are 2.6mm with 1.8mm disc gaps
-- No gradients, no hairlines, and never more than two thread colours
+- No gradients, no hairlines, and a single thread colour per cut
 - Letterforms are drawn as outlines, so there is no font to license or supply
 
 On a structured 6-panel cap the centre seam runs straight through the middle of

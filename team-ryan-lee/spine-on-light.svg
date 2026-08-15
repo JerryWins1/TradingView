@@ -12,8 +12,6 @@
       <path transform="translate(276,0)" d="M0 0 H14 V46 H46 V60 H0 Z"/>
       <path transform="translate(332,0)" d="M0 0 H46 V12 H14 V24 H40 V36 H14 V48 H46 V60 H0 Z"/>
       <path transform="translate(390,0)" d="M0 0 H46 V12 H14 V24 H40 V36 H14 V48 H46 V60 H0 Z"/></g>
-  </g>
-  <g fill="#8CC63F">
     <g transform="translate(14,8) scale(0.87)"><path transform="translate(36,14) rotate(-10)" d="M-6.5 -6.5 L6.5 -5.5 L16.5 -2.5 L14.5 6.5 L5.5 5.5 L-7.5 6.5 L-9.5 2.5 L-8.5 -2.5 Z"/>
     <path transform="translate(31,33) rotate(-4)" d="M-7.5 -6.5 L7.5 -5.5 L18.5 -1.5 L16.5 7.5 L6.5 5.5 L-8.5 6.5 L-10.5 2.5 L-9.5 -2.5 Z"/>
     <path transform="translate(29,52) rotate(4)" d="M-8.5 -7 L8.5 -6 L20.5 -1 L18.5 8 L7.5 6 L-9.5 7 L-11.5 3 L-10.5 -3 Z"/>
