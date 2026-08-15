@@ -17,7 +17,7 @@
       <path transform="translate(390,0)" d="M0 0 H46 V12 H14 V24 H40 V36 H14 V48 H46 V60 H0 Z"/>
     </g>
   </g>
-  <g fill="#D9A441">
+  <g fill="#8CC63F">
     <rect x="140" y="140" width="88" height="5"/>
     <rect x="252" y="140" width="88" height="5"/>
     <path d="M240 134 L247 142.5 L240 151 L233 142.5 Z"/>

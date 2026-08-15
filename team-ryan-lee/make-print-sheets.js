@@ -14,7 +14,7 @@ const svg = (name, cls) =>
 
 const CONCEPTS = [
   { slug: 'spine', name: 'Spine', blurb:
-    'A lateral view of a real spine beside the name — the S-curve of cervical, thoracic and lumbar, vertebrae growing toward the base, spinous processes sweeping down and shingling over one another, and a fused sacrum. <i>Straight Up Spine &amp; Posture</i>, and the concept tied to the practice.' },
+    'The spine from the <i>Straight Up Spine &amp; Posture</i> logo, redrawn as embroidery artwork — the same angular, woodcut-style vertebrae over a heavier sacrum, in the practice’s own green. The concept tied to the practice Ryan founded in 2016.' },
   { slug: 'varsity', name: 'Varsity', blurb:
     'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the three and the one that reads fastest from across a room.' },
   { slug: 'bubbles', name: 'Bubbles', blurb:

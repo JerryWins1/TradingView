@@ -50,12 +50,13 @@ function block(str, cap, cx, yTop, track = 0) {
     </g>`;
 }
 
-const C = { cream: '#F6F1E5', navy: '#17293F', gold: '#D9A441' };
+// Green and off-white taken from the Straight Up Spine & Posture logo.
+const C = { cream: '#F6F1E5', navy: '#17293F', green: '#8CC63F' };
 
 // colourway → [main ink, accent ink]
 const WAYS = {
-  'on-dark':  [C.cream, C.gold],
-  'on-light': [C.navy,  C.gold],
+  'on-dark':  [C.cream, C.green],
+  'on-light': [C.navy,  C.green],
   '1color':   ['currentColor', 'currentColor'],
 };
 
@@ -106,61 +107,60 @@ function bubbles() {
 }
 
 // ── Spine ─────────────────────────────────────────────────────────────────
-// Lateral view of a real spine. Anterior faces left, so spinous processes point
-// right and sweep downward. Three things make it read as anatomy rather than as
-// a ladder: the S-curve (cervical lordosis, thoracic kyphosis, lumbar
-// lordosis), vertebrae that grow toward the base, and a fused sacrum.
-// Local box 80 x 195.
+// Redrawn to match the Straight Up Spine & Posture logo rather than invented:
+// that mark is angular and woodcut-like, not pill-shaped — chunky quadrilateral
+// vertebrae with clean slashes between them, a smooth anterior contour down the
+// left and a jagged process edge down the right, over a heavier sacrum.
+// Local box 84 x 200. Anterior faces left.
 //
-// Seven segments, not more: each body has to stay tall enough to read as a
-// block against a visibly thinner process, and the disc gaps have to clear the
-// ~1.5mm stitch floor. More vertebrae would be more accurate and would stitch
-// as mush.
+// Eight segments plus the sacrum. The practice logo packs in more, but at cap
+// size the disc gaps have to clear the ~1.5mm stitch floor; these hold ~1.8mm.
 //
-// [cy, cx, bodyW, bodyH, procLen, procAngle, tilt]
+// [cy, cx, bodyW, bodyH, procLen, procDrop, tilt]  — cx traces the S-curve
 const VERTS = [
-  [ 12, 34, 16, 12, 12, 18,  -8],
-  [ 33, 29, 18, 12, 14, 24,  -3],
-  [ 54, 30, 20, 13, 16, 32,   6],
-  [ 75, 37, 23, 13, 17, 36,  10],
-  [ 96, 43, 26, 13, 17, 32,   3],
-  [117, 40, 28, 14, 16, 22,  -9],
-  [138, 32, 30, 14, 14, 12, -13],
+  [ 14, 36, 17, 13,  8, 2, -10],
+  [ 33, 31, 19, 13,  9, 3,  -4],
+  [ 52, 29, 21, 14, 10, 4,   4],
+  [ 71, 32, 23, 14, 12, 5,  10],
+  [ 90, 38, 25, 15, 13, 5,   8],
+  [110, 42, 27, 15, 13, 4,  -2],
+  [130, 40, 29, 16, 12, 3, -11],
+  [150, 33, 30, 16, 10, 2, -15],
 ];
-const SACRUM = 'M16 150 L44 154 C46 165 43 176 37 185 C33 191 26 190 24 183 C20 172 17 161 16 150 Z';
+const SACRUM = 'M18 161 L46 165 L47 176 L41 190 L34 197 L26 194 L22 182 L18 170 Z';
+
+const vertebra = (w, h, p, drop) => {
+  const x0 = -w / 2, x1 = w / 2;
+  return `M${x0 + 2} ${-h / 2} L${x1 - 2} ${-h / 2 + 1} L${x1 + p} ${-h / 2 + 2 + drop}` +
+    ` L${x1 + p - 2} ${-h / 2 + 11 + drop} L${x1 - 3} ${h / 2 - 1} L${x0 + 1} ${h / 2}` +
+    ` L${x0 - 1} ${h / 2 - 4} L${x0} ${-h / 2 + 4} Z`;
+};
 
 function spineColumn(tx, ty, s) {
-  const verts = VERTS.map(([cy, cx, w, h, p, pa, tilt]) =>
-    `<g transform="translate(${cx},${cy}) rotate(${tilt})">` +
-      `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="3.5"/>` +
-      // process springs from the upper-posterior corner and sweeps down, so the
-      // tips shingle over the vertebra below
-      `<g transform="translate(${round(w / 2 - 2)},${round(-h / 5)}) rotate(${pa})">` +
-        `<path d="M0 -3.6 L${p} -2.3 Q${p + 2} 0 ${p} 2.3 L0 3.6 Z"/>` +
-      `</g>` +
-    `</g>`).join('\n    ');
+  const verts = VERTS.map(([cy, cx, w, h, p, drop, tilt]) =>
+    `<path transform="translate(${cx},${cy}) rotate(${tilt})" d="${vertebra(w, h, p, drop)}"/>`
+  ).join('\n    ');
   return `<g transform="translate(${tx},${ty}) scale(${s})">${verts}<path d="${SACRUM}"/></g>`;
 }
 
 function spine() {
   const W = 480, H = 190;
   const teamT = setText('TEAM', 20), nameT = setText('RYAN LEE');
-  const TX = 112;
+  const TX = 116;
   return {
     w: W, h: H, label: 'Team Ryan Lee',
     main: [
       `<g transform="translate(${TX},57) scale(${round(22 / 60)})">${teamT.body}</g>`,
       `<g transform="translate(${TX},89) scale(${round(48 / 60)})">${nameT.body}</g>`,
     ].join('\n    '),
-    accent: spineColumn(16, 9, 0.88),
+    accent: spineColumn(14, 8, 0.87),
   };
 }
 
 const CONCEPTS = { spine: spine(), varsity: varsity(), bubbles: bubbles() };
 
 for (const [name, spec] of Object.entries(CONCEPTS)) {
-  for (const [way, [ink, goldAccent]] of Object.entries(WAYS)) {
-    const accent = goldAccent;
+  for (const [way, [ink, accent]] of Object.entries(WAYS)) {
     const body = { main: spec.main, accent: spec.accent.replaceAll("'ACCENT'", accent).replaceAll('ACCENT', accent) };
     const file = `${OUT}/${name}-${way}.svg`;
     fs.writeFileSync(file, svg({ w: spec.w, h: spec.h, label: spec.label, ink, accent, body }));

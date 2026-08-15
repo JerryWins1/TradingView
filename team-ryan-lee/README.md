@@ -6,17 +6,15 @@ supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 ## The concepts
 
 **Spine** — `spine-*.svg`
-A lateral view of a real spine beside the name: the S-curve of cervical lordosis,
-thoracic kyphosis and lumbar lordosis; vertebrae growing toward the base; spinous
-processes sweeping down and shingling over one another; a fused sacrum below.
-*Straight Up Spine & Posture*, and the concept tied to the practice Ryan founded
-in 2016.
+The spine from the *Straight Up Spine & Posture* logo, redrawn as embroidery
+artwork rather than invented: the same angular, woodcut-style vertebrae with
+clean slashes between them, a smooth contour down the front and a jagged process
+edge down the back, over a heavier sacrum. In the practice's own green.
 
-Seven segments rather than a full twenty-four. Each body has to stay tall enough
-to read as a block against a thinner process, and the disc gaps have to clear the
-~1.5mm stitch floor — more vertebrae would be more accurate and would stitch as
-mush. A straight stack of identical blocks reads as a ladder; the curve, the size
-gradient and the sacrum are what make it anatomy.
+Eight segments plus the sacrum. The practice logo packs in more, but at cap size
+the disc gaps have to clear the ~1.5mm stitch floor — more vertebrae would be
+truer to the original and would stitch as mush. Vertebrae land at 2.6mm with
+1.8mm gaps.
 
 **Varsity** — `varsity-*.svg`
 TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
@@ -34,20 +32,21 @@ is still working through. Your call entirely.
 
 | Suffix | Threads | For |
 | --- | --- | --- |
-| `-on-dark` | Cream + gold | Navy, black, charcoal caps |
-| `-on-light` | Navy + gold | Khaki, stone, natural, white caps |
+| `-on-dark` | Cream + green | Navy, black, charcoal caps |
+| `-on-light` | Navy + green | Khaki, stone, natural, white caps |
 | `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
 ## Thread colour
 
-| Name | Hex | Nearest common thread |
+| Name | Hex | What to ask for |
 | --- | --- | --- |
-| Cream | `#F6F1E5` | Madeira 1082 / Isacord 0670 — off-white |
-| Navy | `#17293F` | Madeira 1243 / Isacord 3554 — navy |
-| Gold | `#D9A441` | Madeira 1126 / Isacord 0702 — old gold |
+| Practice green | `#8CC63F` | The green from the Straight Up logo — bright yellow-green |
+| Cream | `#F6F1E5` | Soft off-white, not a stark bright white |
+| Navy | `#17293F` | Deep, near-black navy |
 
-Match to the shop's own thread book rather than trusting these on screen. Ask for
-a stitch-out on the actual cap colour before the full run.
+Take the hex values to the shop and match against their own thread book. Screens
+lie, and thread codes vary by brand and range, so match to the swatch rather than
+to a number. Ask for a stitch-out on the actual cap colour before the full run.
 
 ## Giving these to an embroiderer
 
@@ -70,7 +69,7 @@ drawn to stay above it:
 - Letter strokes are 14 units on a 60-unit cap height — about 3.3mm stitched, well
   clear of the ~1.5mm minimum
 - No text stitches below roughly 0.2in cap height
-- The smallest bubble is 2.4mm across; spine vertebrae are 2.5mm with 1.7mm disc gaps
+- The smallest bubble is 2.4mm across; spine vertebrae are 2.6mm with 1.8mm disc gaps
 - No gradients, no hairlines, and never more than two thread colours
 - Letterforms are drawn as outlines, so there is no font to license or supply
 
@@ -95,8 +94,8 @@ true. Regenerate with `node make-print-sheets.js`.
   here. Public records give March 25, 2024 and age 37, which puts the birth year
   at either 1986 or 1987 depending on his birthday — not something to guess at on
   a hat. Confirm the wording and I'll set it.
-- **The practice name.** "Straight Up Spine & Posture" or "Gurnee, IL" can replace
-  the rule in the varsity mark, or run under the spine column. Not added unasked —
-  the practice name is estate property and how it gets used is your call.
+- **The practice name in words.** The spine mark is now the practice's, at your
+  direction. "Straight Up Spine & Posture" or "Gurnee, IL" could also run as text
+  under the spine or replace the rule in the varsity mark — not added unasked.
 - **Back or side embroidery.** A small `RL` on the back strap or a side panel is
   inexpensive to add and looks considered.

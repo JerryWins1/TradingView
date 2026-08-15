@@ -17,7 +17,7 @@
       <path transform="translate(390,0)" d="M0 0 H46 V12 H14 V24 H40 V36 H14 V48 H46 V60 H0 Z"/>
     </g>
   </g>
-  <g fill="#D9A441">
+  <g fill="#8CC63F">
     <circle cx="240" cy="60" r="5"/>
     <circle cx="220" cy="44" r="6"/>
     <circle cx="259" cy="45" r="5.5"/>
