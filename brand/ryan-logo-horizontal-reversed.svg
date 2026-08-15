@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396 128" width="396" height="128" role="img" aria-label="Ryan">
+  <title>Ryan</title>
+  <!-- For dark backgrounds: the tile drops its fill, everything runs in paper white. -->
+  <rect x="1" y="1" width="126" height="126" rx="27" fill="none" stroke="#F6F9FB" stroke-opacity="0.28" stroke-width="2"/>
+  <rect x="40" y="18" width="6" height="92" rx="3" fill="#00D18F"/>
+  <path fill="#F6F9FB" d="M36 34 H72 A16 16 0 0 1 72 66 H50 V94 H36 Z M50 56 H72 A6 6 0 0 0 72 44 H50 Z M56 62 H72 L90 94 H74 Z"/>
+  <g transform="translate(160,34)" fill="#F6F9FB">
+    <path d="M0 0 H36 A16 16 0 0 1 36 32 H14 V60 H0 Z M14 22 H36 A6 6 0 0 0 36 10 H14 Z M20 28 H36 L54 60 H38 Z"/>
+    <path transform="translate(62,0)" d="M0 0 H17 L26 15 L35 0 H52 L33 31 V60 H19 V31 Z"/>
+    <path transform="translate(118,0)" d="M0 60 L21 0 H35 L56 60 H42 L39.2 52 H16.8 L14 60 Z M20.7 41 H35.3 L28 20 Z"/>
+    <path transform="translate(180,0)" d="M0 0 H14 L42 37 V0 H56 V60 H42 L14 23 V60 H0 Z"/>
+  </g>
+</svg>

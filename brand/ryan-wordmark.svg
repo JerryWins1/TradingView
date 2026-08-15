@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 60" width="236" height="60" role="img" aria-label="RYAN">
+  <title>RYAN</title>
+  <!-- Letterforms are drawn as outlines, not live text: no font dependency, identical everywhere.
+       Sidebearings are kerned optically, not metrically — R's leg and A's slanted legs
+       nest into their neighbours, so those gaps are tighter than a uniform value. -->
+  <g fill="currentColor">
+    <path d="M0 0 H36 A16 16 0 0 1 36 32 H14 V60 H0 Z M14 22 H36 A6 6 0 0 0 36 10 H14 Z M20 28 H36 L54 60 H38 Z"/>
+    <path transform="translate(62,0)" d="M0 0 H17 L26 15 L35 0 H52 L33 31 V60 H19 V31 Z"/>
+    <path transform="translate(118,0)" d="M0 60 L21 0 H35 L56 60 H42 L39.2 52 H16.8 L14 60 Z M20.7 41 H35.3 L28 20 Z"/>
+    <path transform="translate(180,0)" d="M0 0 H14 L42 37 V0 H56 V60 H42 L14 23 V60 H0 Z"/>
+  </g>
+</svg>

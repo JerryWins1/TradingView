@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Ryan">
+  <title>Ryan</title>
+  <defs>
+    <linearGradient id="ryanTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1B4A72"/>
+      <stop offset="0.55" stop-color="#0E2740"/>
+      <stop offset="1" stop-color="#081726"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#ryanTile)"/>
+  <!-- candlestick wick: the R's stem reads as a candle body between two wicks -->
+  <rect x="40" y="18" width="6" height="92" rx="3" fill="#00D18F"/>
+  <!-- letter R -->
+  <path fill="#FFFFFF" d="M36 34 H72 A16 16 0 0 1 72 66 H50 V94 H36 Z M50 56 H72 A6 6 0 0 0 72 44 H50 Z M56 62 H72 L90 94 H74 Z"/>
+</svg>
