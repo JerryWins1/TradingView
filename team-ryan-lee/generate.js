@@ -132,7 +132,40 @@ function bubbles() {
   };
 }
 
-const CONCEPTS = { varsity: varsity(), roundel: roundel(), bubbles: bubbles() };
+// ── Concept 4: Spine ──────────────────────────────────────────────────────
+// A vertebral column for Straight Up Spine & Posture — the practice Ryan
+// founded in 2016 and the thing most people knew him for. Vertebrae taper
+// wider toward the lumbar end, and the column is dead straight, which is the
+// practice name taken literally.
+function spine() {
+  const W = 480, H = 150;
+  // Side view: a vertebral body plus its spinous process pointing back. Plain
+  // stacked bars read as a cone; the process is what makes it a spine.
+  const SX = 46, BAR_H = 13, PITCH = 21;   // 8-unit gap ≈ 1.9mm stitched
+  const bodies = [30, 33, 36, 39, 42, 45];       // cervical → lumbar
+  const top = (H - ((bodies.length - 1) * PITCH + BAR_H)) / 2;
+  const vertebrae = bodies.flatMap((w, i) => {
+    const y = top + i * PITCH;
+    const right = SX + w / 2;
+    return [
+      `<rect x="${round(SX - w / 2)}" y="${round(y)}" width="${w}" height="${BAR_H}" rx="3.5"/>`,
+      `<rect x="${round(right - 2)}" y="${round(y + 2)}" width="20" height="8" rx="4"/>`,
+    ];
+  });
+  // Text is left-aligned beside the column rather than centred on the canvas.
+  const teamT = setText('TEAM', 20), nameT = setText('RYAN LEE');
+  const TX = 108;
+  return {
+    w: W, h: H, label: 'Team Ryan Lee',
+    main: [
+      `<g transform="translate(${TX},38) scale(${round(22 / 60)})">${teamT.body}</g>`,
+      `<g transform="translate(${TX},68) scale(${round(46 / 60)})">${nameT.body}</g>`,
+    ].join('\n    '),
+    accent: vertebrae.join('\n    '),
+  };
+}
+
+const CONCEPTS = { varsity: varsity(), roundel: roundel(), bubbles: bubbles(), spine: spine() };
 
 for (const [name, spec] of Object.entries(CONCEPTS)) {
   for (const [way, [ink, accent]] of Object.entries(WAYS)) {

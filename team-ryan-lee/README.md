@@ -15,6 +15,14 @@ A patch-style badge: an RL monogram centred in a double ring, with the full name
 beneath. Works as a cap front, and equally as a left-chest mark on a polo or
 jacket if the team wants matching pieces.
 
+**Spine** — `spine-*.svg`
+A vertebral column beside the name, drawn as a side view — bodies plus spinous
+processes, tapering cervical to lumbar, and dead straight, which is
+*Straight Up Spine & Posture* taken literally. This is the concept tied to the
+practice Ryan founded in 2016 and to what most people knew him for. It is also
+the widest and shortest of the four, which suits a cap front better than the
+rest.
+
 **Bubbles** — `bubbles-*.svg`
 The same wordmark under a rising plume of bubbles, drawn from Ryan's fine-bubble
 diffuser work. The bubbles leave a single source and spread as they climb. It is
@@ -74,8 +82,11 @@ detail lands on the seam, where it would distort.
 ## Still open
 
 - **A year or dates.** Memorial team hats often carry them. Nothing is invented
-  here — say the word and where you want it and I'll set it.
-- **A location line.** "Gurnee, IL" or similar can replace the rule in the varsity
-  mark.
+  here. Public records give March 25, 2024 and age 37, which puts the birth year
+  at either 1986 or 1987 depending on his birthday — not something to guess at on
+  a hat. Confirm the wording and I'll set it.
+- **The practice name.** "Straight Up Spine & Posture" or "Gurnee, IL" can replace
+  the rule in the varsity mark, or run under the spine column. Not added unasked —
+  the practice name is estate property and how it gets used is your call.
 - **Back or side embroidery.** A small `RL` on the back strap or a side panel is
   inexpensive to add and looks considered.
