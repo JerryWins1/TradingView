@@ -5,11 +5,6 @@ supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 
 ## The concepts
 
-**Varsity** — `varsity-*.svg`
-TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
-diamond. The most straightforward of the three and the one that reads fastest
-across a room. Safe for any kind of team.
-
 **Spine** — `spine-*.svg`
 A lateral view of a real spine beside the name: the S-curve of cervical lordosis,
 thoracic kyphosis and lumbar lordosis; vertebrae growing toward the base; spinous
@@ -22,6 +17,11 @@ to read as a block against a thinner process, and the disc gaps have to clear th
 ~1.5mm stitch floor — more vertebrae would be more accurate and would stitch as
 mush. A straight stack of identical blocks reads as a ladder; the curve, the size
 gradient and the sacrum are what make it anatomy.
+
+**Varsity** — `varsity-*.svg`
+TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
+diamond. The most straightforward of the three and the one that reads fastest
+across a room. Safe for any kind of team.
 
 **Bubbles** — `bubbles-*.svg`
 The same wordmark under a rising plume of bubbles, drawn from Ryan's fine-bubble
@@ -60,7 +60,7 @@ Tell them:
 
 - **Placement:** cap front, centred, standard 6-panel
 - **Size:** 4.5in wide max, 2.25in tall
-- **Stitch:** satin on all lettering; bubbles and eyespots run as satin-filled shapes
+- **Stitch:** satin on all lettering; bubbles and vertebrae run as satin-filled shapes
 
 ### Why these are built the way they are
 
