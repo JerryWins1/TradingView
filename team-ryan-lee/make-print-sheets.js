@@ -13,18 +13,10 @@ const svg = (name, cls) =>
     .replace(/<svg /, `<svg class="${cls}" `);
 
 const CONCEPTS = [
-  { slug: 'rise', name: 'Rise', blurb:
-    'The caterpillar low on the left, the moth high on the right, and the diffuser plume rising between them — the bubbles Ryan was designing doing the work of the change. His tattoos and his engineering in one mark, read left to right and bottom to top.' },
-  { slug: 'luna', name: 'Luna', blurb:
-    'The moth from Ryan’s tattoo — <i>Actias luna</i>, drawn to the real proportions of the species: the near-straight forewing edge, the eyespots, the feathery antennae, and the long trailing tails. Stitched in moth green.' },
-  { slug: 'metamorphosis', name: 'Metamorphosis', blurb:
-    'Both tattoos together, in reading order — the caterpillar on the left, the moth on the right. The same animal twice. The change in size carries the idea, so there is no arrow between them.' },
   { slug: 'spine', name: 'Spine', blurb:
-    'A vertebral column beside the name, seen from the side and perfectly straight — which is <i>Straight Up Spine &amp; Posture</i> taken literally. The concept tied to the practice rather than to the tattoos.' },
+    'A lateral view of a real spine beside the name — the S-curve of cervical, thoracic and lumbar, vertebrae growing toward the base, spinous processes sweeping down and shingling over one another, and a fused sacrum. <i>Straight Up Spine &amp; Posture</i>, and the concept tied to the practice.' },
   { slug: 'varsity', name: 'Varsity', blurb:
-    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the seven and the one that reads fastest from across a room.' },
-  { slug: 'roundel', name: 'Roundel', blurb:
-    'A patch-style badge: an RL monogram in a double ring with the full name beneath. Holds together at the smallest size, so it also works on a shirt or a jacket.' },
+    'TEAM set small above a full-width RYAN LEE, closed by a rule and a diamond. The plainest of the three and the one that reads fastest from across a room.' },
   { slug: 'bubbles', name: 'Bubbles', blurb:
     'A rising plume drawn from the fine-bubble diffuser Ryan was designing — bubbles leaving one source and spreading as they climb. The concept that points at his engineering work.' },
 ];
@@ -99,7 +91,7 @@ const CSS = `
 `;
 
 const sheet = (c, i, total) => {
-  const sq = c.slug === 'roundel' ? ' sq' : '';
+  const sq = '';   // no square marks left in the set
   return `<div class="sheet">
     <div class="top">
       <span class="who">Team Ryan Lee &nbsp;·&nbsp; hat artwork</span>
@@ -163,8 +155,8 @@ const sheet = (c, i, total) => {
     console.log('wrote', `${i + 1}-${c.slug}.pdf`);
   }
   await render(CONCEPTS.map((c, i) => sheet(c, i, CONCEPTS.length)).join('\n'),
-               `${OUT}/all-seven-concepts.pdf`);
-  console.log('wrote all-seven-concepts.pdf');
+               `${OUT}/all-three-concepts.pdf`);
+  console.log('wrote all-three-concepts.pdf');
 
   fs.unlinkSync(`${OUT}/_tmp.html`);
   await browser.close();

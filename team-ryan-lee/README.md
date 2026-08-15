@@ -1,53 +1,27 @@
 # Team Ryan Lee — hat artwork
 
-Seven concepts for an embroidered cap, in memory of Ryan Lee Winslow. Each one is
+Three concepts for an embroidered cap, in memory of Ryan Lee Winslow. Each one is
 supplied in three colourways, as vector SVG plus a 2000px PNG proof.
 
 ## The concepts
 
-**Rise** — `rise-*.svg`
-The caterpillar low on the left, the moth high on the right, and the diffuser
-plume rising diagonally between them — the bubbles doing the work of the change.
-Reads left to right and bottom to top at once. The only mark that carries the
-tattoos, the practice and the engineering together.
-
-Bubbles run in the ink colour rather than moth green, so they read as air rather
-than as more of the animal, and so the mark still stitches in two threads.
-
-**Luna** — `luna-*.svg`
-The moth from the tattoo: *Actias luna*, drawn to its own proportions — the
-near-straight forewing leading edge, the eyespots, the plumose antennae, and the
-long trailing hindwing tails that are the signature of the species. Runs in moth
-green rather than gold.
-
-The tails and antennae are drawn deliberately fatter than life. At cap scale a
-true-to-nature Luna tail works out to roughly 1mm and would disappear; these hold
-about 1.8mm throughout.
-
-**Metamorphosis** — `metamorphosis-*.svg`
-Both tattoos together in reading order — larva left, moth right, the same animal
-twice. There is no arrow between them; the change in scale carries the
-progression, and an arrow would turn it into a diagram. The larva's segments are
-built from the same module as the spine concept, because a caterpillar's segments
-and a vertebral column are the same shape.
-
 **Varsity** — `varsity-*.svg`
 TEAM set small and tracked above a full-width RYAN LEE, closed by a rule and a
-diamond. The most straightforward of the seven and the one that reads fastest
+diamond. The most straightforward of the three and the one that reads fastest
 across a room. Safe for any kind of team.
 
-**Roundel** — `roundel-*.svg`
-A patch-style badge: an RL monogram centred in a double ring, with the full name
-beneath. Works as a cap front, and equally as a left-chest mark on a polo or
-jacket if the team wants matching pieces.
-
 **Spine** — `spine-*.svg`
-A vertebral column beside the name, drawn as a side view — bodies plus spinous
-processes, tapering cervical to lumbar, and dead straight, which is
-*Straight Up Spine & Posture* taken literally. This is the concept tied to the
-practice Ryan founded in 2016 and to what most people knew him for. It is also
-the widest and shortest of the seven, which suits a cap front better than the
-rest.
+A lateral view of a real spine beside the name: the S-curve of cervical lordosis,
+thoracic kyphosis and lumbar lordosis; vertebrae growing toward the base; spinous
+processes sweeping down and shingling over one another; a fused sacrum below.
+*Straight Up Spine & Posture*, and the concept tied to the practice Ryan founded
+in 2016.
+
+Seven segments rather than a full twenty-four. Each body has to stay tall enough
+to read as a block against a thinner process, and the disc gaps have to clear the
+~1.5mm stitch floor — more vertebrae would be more accurate and would stitch as
+mush. A straight stack of identical blocks reads as a ladder; the curve, the size
+gradient and the sacrum are what make it anatomy.
 
 **Bubbles** — `bubbles-*.svg`
 The same wordmark under a rising plume of bubbles, drawn from Ryan's fine-bubble
@@ -64,9 +38,6 @@ is still working through. Your call entirely.
 | `-on-light` | Navy + gold | Khaki, stone, natural, white caps |
 | `-1color` | One thread | Cheapest to stitch; fills with `currentColor` in the SVG |
 
-The Rise, Luna and Metamorphosis marks substitute moth green for gold in both
-two-colour cuts.
-
 ## Thread colour
 
 | Name | Hex | Nearest common thread |
@@ -74,7 +45,6 @@ two-colour cuts.
 | Cream | `#F6F1E5` | Madeira 1082 / Isacord 0670 — off-white |
 | Navy | `#17293F` | Madeira 1243 / Isacord 3554 — navy |
 | Gold | `#D9A441` | Madeira 1126 / Isacord 0702 — old gold |
-| Moth green | `#AFD46A` | Madeira 1370 / Isacord 6011 — Rise, Luna, Metamorphosis |
 
 Match to the shop's own thread book rather than trusting these on screen. Ask for
 a stitch-out on the actual cap colour before the full run.
@@ -89,7 +59,7 @@ raster image.
 Tell them:
 
 - **Placement:** cap front, centred, standard 6-panel
-- **Size:** 4.5in wide max on every mark except the roundel, which is 2.25in tall
+- **Size:** 4.5in wide max, 2.25in tall
 - **Stitch:** satin on all lettering; bubbles and eyespots run as satin-filled shapes
 
 ### Why these are built the way they are
@@ -99,20 +69,18 @@ drawn to stay above it:
 
 - Letter strokes are 14 units on a 60-unit cap height — about 3.3mm stitched, well
   clear of the ~1.5mm minimum
-- No text stitches below roughly 0.2in cap height, which is what set the roundel's
-  internal sizes
-- The smallest bubble is 2.4mm across, and the Luna tails and antennae hold
-  about 1.8mm — drawn fatter than the real moth, which would stitch at ~1mm
+- No text stitches below roughly 0.2in cap height
+- The smallest bubble is 2.4mm across; spine vertebrae are 2.5mm with 1.7mm disc gaps
 - No gradients, no hairlines, and never more than two thread colours
 - Letterforms are drawn as outlines, so there is no font to license or supply
 
 On a structured 6-panel cap the centre seam runs straight through the middle of
-the design. All seven marks have open space on the centreline — no counter or fine
+the design. All three marks have open space on the centreline — no counter or fine
 detail lands on the seam, where it would distort.
 
 ## Printable review sheets
 
-`print/` holds one letter-size PDF per concept plus `all-seven-concepts.pdf`,
+`print/` holds one letter-size PDF per concept plus `all-three-concepts.pdf`,
 for printing and passing round. Each sheet shows the mark large, the khaki and
 single-thread cuts, and the mark at true stitched size inside a dashed
 4.5 x 2.25in rule — the real cap-front stitching area, printed 1:1. Hold the page
