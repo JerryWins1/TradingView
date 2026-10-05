@@ -28,7 +28,7 @@ function buildWalkSurvey() {
   var isRealSurvey = account.toLowerCase() === TASK_FORCE_ACCOUNT;
   var prefix = isRealSurvey ? '' : 'PRACTICE – ';
 
-  var form = FormApp.create(prefix + "LCSPTF's 14th Annual Suicide Prevention & Awareness Walk/Run – Participant Survey");
+  var form = FormApp.create(prefix + 'Walk/Run Participant Survey');
 
   form.setDescription(
     'Thank you for being part of this year\'s Walk/Run! Your feedback helps us make next year\'s event even better. ' +
