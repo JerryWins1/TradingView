@@ -22,14 +22,36 @@ var VERSION_SUFFIX = ' – A';
 function makeVersionA() {
   var folder = DriveApp.getFolderById(WALK_SHARED_FOLDER_ID);
   var original = DriveApp.getFileById(ORIGINAL_FORM_ID);
-  var copy = original.makeCopy(original.getName() + VERSION_SUFFIX, folder);
-  var form = FormApp.openById(copy.getId());
-  form.setTitle(form.getTitle() + VERSION_SUFFIX);
+  var copyName = original.getName() + VERSION_SUFFIX;
 
-  var takePart = findItem(form, FormApp.ItemType.MULTIPLE_CHOICE, 'How did you take part this year?')
-    .asMultipleChoiceItem();
-  var experience = findItem(form, FormApp.ItemType.PAGE_BREAK, 'Your Experience').asPageBreakItem();
-  var lastQuestions = findItem(form, FormApp.ItemType.PAGE_BREAK, 'A Few Last Questions').asPageBreakItem();
+  // Reuse a Version A left by an earlier run instead of making another copy.
+  var existing = folder.getFilesByName(copyName);
+  var copy = existing.hasNext() ? existing.next() : original.makeCopy(copyName, folder);
+  var form = FormApp.openById(copy.getId());
+
+  if (findItem(form, FormApp.ItemType.PAGE_BREAK, 'At the Event')) {
+    Logger.log('Version A already has the "At the Event" section, so nothing was changed.');
+    Logger.log('Edit Version A here: ' + form.getEditUrl());
+    return;
+  }
+
+  var originalTitle = FormApp.openById(ORIGINAL_FORM_ID).getTitle();
+  form.setTitle(originalTitle + VERSION_SUFFIX);
+
+  // The first question is "How did you take part this year?".
+  var items = form.getItems();
+  if (items.length === 0 || items[0].getType() !== FormApp.ItemType.MULTIPLE_CHOICE) {
+    throw new Error('The first item in the survey is not the "How did you take part" question.');
+  }
+  var takePart = items[0].asMultipleChoiceItem();
+
+  // The existing sections, in order: "Your Experience", then "A Few Last Questions".
+  var sections = form.getItems(FormApp.ItemType.PAGE_BREAK);
+  if (sections.length < 2) {
+    throw new Error('Expected two sections in the survey but found ' + sections.length + '.');
+  }
+  var experience = sections[0].asPageBreakItem();
+  var lastQuestions = sections[1].asPageBreakItem();
 
   // ---- New section: At the Event (CLC attendees only) ----
   var atEvent = form.addPageBreakItem()
@@ -103,9 +125,9 @@ function makeVersionA() {
 function findItem(form, type, title) {
   var items = form.getItems(type);
   for (var i = 0; i < items.length; i++) {
-    if (items[i].getTitle() === title) {
+    if (items[i].getTitle().trim() === title) {
       return items[i];
     }
   }
-  throw new Error('Could not find "' + title + '" in the survey. Has it been renamed?');
+  return null;
 }
