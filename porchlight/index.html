@@ -1,0 +1,1323 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style></head><body>
+<title>Porchlight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Young+Serif&display=swap">
+<style>
+/* Layout: one big column, one thing at a time; a fixed bottom bar of five labeled buttons, like a TV remote. */
+:root {
+  --bg: #eef2f6;
+  --card: #ffffff;
+  --ink: #15203a;
+  --muted: #4a5670;
+  --line: #cfd7e3;
+  --primary: #1d4ea0;
+  --on-primary: #ffffff;
+  --lamp: #e9a531;
+  --lamp-soft: #fdf1d9;
+  --reply: #b42318;
+  --reply-soft: #fdecea;
+  --know: #1d4ea0;
+  --know-soft: #e7eefb;
+  --scam: #a84d00;
+  --scam-soft: #fff1e0;
+  --later: #5b6474;
+  --later-soft: #eef0f3;
+  --ok: #1d7a46;
+  --ok-soft: #e4f4ea;
+  --font-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", Verdana, Arial, sans-serif;
+  --base: 19px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1420; --card: #192132; --ink: #eef2f8; --muted: #b1bbcd; --line: #2f3a50;
+    --primary: #8fb3f5; --on-primary: #0d1424; --lamp: #f2b84f; --lamp-soft: #3a2e17;
+    --reply: #ff8f84; --reply-soft: #3b1d1b; --know: #8fb3f5; --know-soft: #1b2944;
+    --scam: #ffb366; --scam-soft: #3a2810; --later: #a7b0bf; --later-soft: #232b3b;
+    --ok: #73d39b; --ok-soft: #173325; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1420; --card: #192132; --ink: #eef2f8; --muted: #b1bbcd; --line: #2f3a50;
+  --primary: #8fb3f5; --on-primary: #0d1424; --lamp: #f2b84f; --lamp-soft: #3a2e17;
+  --reply: #ff8f84; --reply-soft: #3b1d1b; --know: #8fb3f5; --know-soft: #1b2944;
+  --scam: #ffb366; --scam-soft: #3a2810; --later: #a7b0bf; --later-soft: #232b3b;
+  --ok: #73d39b; --ok-soft: #173325; color-scheme: dark;
+}
+html { font-size: var(--base); }
+html.size-2 { --base: 22px; }
+html.size-3 { --base: 25px; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.5; }
+* { box-sizing: border-box; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+a { color: var(--primary); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 4px solid var(--lamp); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+.wrap { max-width: 46rem; margin: 0 auto; padding-inline: 16px; padding-block: 12px 9rem; display: grid; gap: 1.1rem; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-block: .4rem; }
+.brand { display: flex; align-items: center; gap: .55rem; font-family: var(--font-display); font-size: 1.25rem; }
+.lampdot { width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 .3rem var(--lamp-soft); flex: none; }
+.helpbtn { min-height: 3rem; padding: 0 1.1rem; border-radius: 999px; border: 2px solid var(--line); background: var(--card); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; }
+
+/* buttons */
+.btn { min-height: 3.4rem; padding: .55rem 1.3rem; border-radius: .8rem; border: 2px solid transparent; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; text-align: center; text-decoration: none; line-height: 1.2; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-quiet { background: var(--card); color: var(--ink); border-color: var(--line); }
+.btn-danger { background: var(--reply); color: var(--card); }
+.btn-big { min-height: 4.2rem; font-size: 1.15rem; width: 100%; }
+.btn:disabled { opacity: .55; cursor: wait; }
+.row { display: flex; flex-wrap: wrap; gap: .7rem; }
+.row > .btn { flex: 1 1 12rem; }
+.icon { width: 1.3em; height: 1.3em; flex: none; }
+
+/* cards */
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 1.1rem; padding: 1.2rem; display: grid; gap: .85rem; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+.eyebrow { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* greeting */
+.hello { display: grid; gap: .35rem; padding-block: .4rem .2rem; }
+.hello .date { color: var(--muted); font-size: 1.05rem; }
+
+/* helper speech bubble (setup + chat) */
+.say { display: grid; grid-template-columns: auto 1fr; gap: .8rem; align-items: start; }
+.avatar { width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--lamp); color: #2b1d00; display: grid; place-items: center; font-family: var(--font-display); font-size: 1.4rem; flex: none; }
+.bubble { background: var(--lamp-soft); border-radius: 0 1.1rem 1.1rem 1.1rem; padding: 1rem 1.1rem; display: grid; gap: .6rem; min-width: 0; font-size: 1.12rem; }
+.bubble.me { background: var(--know-soft); border-radius: 1.1rem 0 1.1rem 1.1rem; }
+.speak { justify-self: start; background: none; border: 0; padding: .2rem 0; color: var(--primary); font-weight: 700; cursor: pointer; display: inline-flex; gap: .35rem; align-items: center; min-height: 2.6rem; }
+
+/* setup */
+.progress { display: flex; gap: .35rem; }
+.progress span { flex: 1; height: .55rem; border-radius: 999px; background: var(--line); }
+.progress span.on { background: var(--lamp); }
+.field { display: grid; gap: .4rem; }
+.field label { font-weight: 700; }
+.input, textarea.input { width: 100%; min-height: 3.6rem; padding: .7rem 1rem; border: 2px solid var(--line); border-radius: .8rem; background: var(--card); font-size: 1.15rem; }
+textarea.input { min-height: 8rem; resize: vertical; line-height: 1.45; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .7rem; }
+.choice { min-height: 4.2rem; padding: .7rem 1rem; border: 2px solid var(--line); border-radius: .9rem; background: var(--card); text-align: left; cursor: pointer; display: flex; align-items: center; gap: .8rem; font-weight: 700; }
+.choice .box { width: 1.7rem; height: 1.7rem; border: 3px solid var(--muted); border-radius: .45rem; flex: none; display: grid; place-items: center; }
+.choice[aria-pressed="true"] { border-color: var(--primary); background: var(--know-soft); }
+.choice[aria-pressed="true"] .box { background: var(--primary); border-color: var(--primary); }
+.choice[aria-pressed="true"] .box::after { content: ""; width: .5rem; height: .9rem; border: solid var(--on-primary); border-width: 0 .22rem .22rem 0; transform: rotate(45deg) translate(-.05rem, -.1rem); }
+.choice small { display: block; font-weight: 400; color: var(--muted); }
+.steps-list { margin: 0; padding-left: 1.4rem; display: grid; gap: .5rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .5rem .35rem .9rem; border-radius: 999px; background: var(--know-soft); font-weight: 700; }
+.chip button { border: 0; background: var(--card); border-radius: 999px; width: 2.2rem; height: 2.2rem; cursor: pointer; font-weight: 700; }
+.note { padding: .9rem 1rem; border-radius: .8rem; background: var(--scam-soft); border-left: .4rem solid var(--scam); }
+.good { padding: .9rem 1rem; border-radius: .8rem; background: var(--ok-soft); border-left: .4rem solid var(--ok); font-weight: 700; }
+.order-row { display: flex; align-items: center; gap: .6rem; padding: .5rem .5rem .5rem 1rem; border: 2px solid var(--line); border-radius: .8rem; background: var(--card); }
+.order-row .name { flex: 1; font-weight: 700; min-width: 0; }
+.order-row button { width: 3.2rem; height: 3.2rem; border-radius: .6rem; border: 2px solid var(--line); background: var(--bg); cursor: pointer; font-size: 1.2rem; }
+.sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.sizes .choice { justify-content: center; flex-direction: column; gap: .2rem; text-align: center; }
+
+/* home tiles */
+.counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .6rem; }
+.count { border-radius: .8rem; padding: .7rem .9rem; display: grid; gap: .1rem; }
+.count b { font-size: 1.8rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.g-reply { background: var(--reply-soft); color: var(--reply); }
+.g-important { background: var(--know-soft); color: var(--know); }
+.g-scam { background: var(--scam-soft); color: var(--scam); }
+.g-later { background: var(--later-soft); color: var(--later); }
+.list { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.event { display: grid; grid-template-columns: 6.2rem 1fr; gap: .7rem; align-items: baseline; }
+.event .when { font-weight: 700; font-variant-numeric: tabular-nums; }
+.linkbtn { display: flex; justify-content: space-between; align-items: center; gap: .7rem; min-height: 3.6rem; padding: .6rem 1rem; border: 2px solid var(--line); border-radius: .8rem; text-decoration: none; color: var(--ink); font-weight: 700; background: var(--card); }
+.linkbtn span.go { color: var(--primary); white-space: nowrap; }
+.verse { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.45; }
+
+/* mail */
+.group { display: grid; gap: .7rem; }
+.group-title { display: flex; align-items: center; gap: .6rem; }
+.group-title .dot { width: 1rem; height: 1rem; border-radius: 50%; }
+.mail { display: grid; gap: .5rem; padding: 1rem 1.1rem; border-radius: 1rem; background: var(--card); border: 2px solid var(--line); border-left-width: .55rem; min-width: 0; }
+.mail.reply { border-left-color: var(--reply); }
+.mail.important { border-left-color: var(--know); }
+.mail.scam { border-left-color: var(--scam); }
+.mail.later { border-left-color: var(--later); }
+.mail .from { font-weight: 700; overflow-wrap: anywhere; }
+.mail .subj { font-size: 1.08rem; overflow-wrap: anywhere; }
+.mail .why { color: var(--muted); }
+.mail .row > .btn { flex: 1 1 9rem; min-height: 3.1rem; }
+.pill { display: inline-block; padding: .1rem .65rem; border-radius: 999px; font-size: .82rem; font-weight: 700; }
+.example-flag { font-size: .85rem; font-weight: 700; color: var(--scam); }
+
+/* todo */
+.todo { display: flex; align-items: center; gap: .8rem; padding: .6rem .8rem; border: 2px solid var(--line); border-radius: .9rem; background: var(--card); }
+.todo .check { width: 3rem; height: 3rem; border-radius: .7rem; border: 3px solid var(--muted); background: var(--card); cursor: pointer; flex: none; display: grid; place-items: center; }
+.todo.done .check { background: var(--ok); border-color: var(--ok); }
+.todo.done .check::after { content: ""; width: .7rem; height: 1.3rem; border: solid var(--card); border-width: 0 .3rem .3rem 0; transform: rotate(45deg) translate(-.1rem, -.1rem); }
+.todo .text { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 1.1rem; }
+.todo.done .text { text-decoration: line-through; color: var(--muted); }
+.todo .from { display: block; font-size: .85rem; color: var(--muted); }
+.todo .del { border: 0; background: none; color: var(--muted); cursor: pointer; min-height: 3rem; padding: 0 .5rem; font-weight: 700; }
+
+/* chat */
+.chat { display: grid; gap: .9rem; }
+.chat .bubble { font-size: 1.05rem; white-space: pre-wrap; }
+.mine { display: flex; justify-content: flex-end; }
+.mine .bubble { max-width: 85%; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; background: var(--card); border: 2px solid var(--line); border-radius: 1rem; padding: .35rem; }
+.tabs button { min-height: 3.3rem; border: 0; border-radius: .7rem; background: none; font-weight: 700; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--primary); color: var(--on-primary); }
+.post { display: grid; gap: .3rem; padding: .9rem 1rem; border-radius: 1rem; background: var(--card); border: 2px solid var(--line); }
+.post .who { display: flex; gap: .6rem; align-items: center; font-weight: 700; }
+.post .who img { width: 2.2rem; height: 2.2rem; border-radius: 50%; }
+.post .body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.08rem; }
+
+/* bottom nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 2px solid var(--line); padding: .4rem .4rem calc(.4rem + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: repeat(5, 1fr); gap: .25rem; z-index: 5; }
+.nav button { min-height: 4.2rem; border: 0; background: none; border-radius: .8rem; cursor: pointer; display: grid; place-items: center; gap: .1rem; font-weight: 700; font-size: .85rem; color: var(--muted); padding: .3rem .1rem; }
+.nav button svg { width: 1.7rem; height: 1.7rem; }
+.nav button[aria-current="page"] { background: var(--know-soft); color: var(--primary); }
+.badge { display: inline-grid; place-items: center; min-width: 1.4rem; height: 1.4rem; border-radius: 999px; background: var(--reply); color: var(--card); font-size: .75rem; padding: 0 .3rem; margin-left: .15rem; }
+
+/* sheet (reader / help / confirm) */
+.sheet { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 45%, transparent); z-index: 10; display: grid; align-items: end; justify-items: center; padding-top: env(safe-area-inset-top, 0px); }
+.sheet-inner { background: var(--bg); width: 100%; max-width: 46rem; max-height: 100%; overflow-y: auto; border-radius: 1.3rem 1.3rem 0 0; padding: 1.2rem 16px calc(1.4rem + env(safe-area-inset-bottom, 0px)); display: grid; gap: 1rem; }
+.mailbody { background: var(--card); border: 2px solid var(--line); border-radius: 1rem; padding: 1.1rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.08rem; max-height: 50vh; overflow-y: auto; }
+.status { display: flex; align-items: center; gap: .7rem; font-weight: 700; }
+.spinner { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: .25rem solid var(--line); border-top-color: var(--lamp); animation: spin 1s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: .9rem 1.3rem; border-radius: 999px; font-weight: 700; z-index: 20; max-width: calc(100% - 32px); text-align: center; }
+</style>
+
+<div id="app" aria-live="polite"></div>
+<nav class="nav" id="nav" hidden></nav>
+<div id="sheet" class="sheet" hidden><div class="sheet-inner" id="sheetInner"></div></div>
+<div id="toast" class="toast" hidden role="status"></div>
+
+<script>
+"use strict";
+/* ---------------------------------------------------------------
+   Porchlight — a patient personal assistant.
+   Works inside Claude (Gmail, Google Calendar, Claude, saved data)
+   and degrades to a plain, private, on-this-device app elsewhere.
+---------------------------------------------------------------- */
+
+/* ---------- tiny helpers ---------- */
+function h(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "html") n.innerHTML = v; /* only used with our own constant SVG strings */
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) n.append(kid.nodeType ? kid : String(kid));
+  return n;
+}
+const $ = (s) => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+function decodeEntities(s) { const t = document.createElement("textarea"); t.innerHTML = s || ""; return t.value; }
+function senderName(from) { const m = /^\s*"?([^"<]+?)"?\s*<.+>/.exec(from || ""); return m ? m[1] : (from || "Unknown sender"); }
+function senderEmail(from) { const m = /<([^>]+)>/.exec(from || ""); return (m ? m[1] : from || "").trim(); }
+function pad(n) { return String(n).padStart(2, "0"); }
+function localISO(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`; }
+function dayIndex() { const d = new Date(); return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); }
+function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+function safeUrl(u) { u = (u || "").trim(); if (!u) return ""; if (!/^https?:\/\//i.test(u)) u = "https://" + u; try { const x = new URL(u); return x.protocol === "https:" || x.protocol === "http:" ? x.href : ""; } catch { return ""; } }
+
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  todo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>',
+  speaker: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/></svg>',
+  help: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.2-1.5 2.2"/><path d="M12 17h.01"/></svg>',
+};
+
+/* ---------- content ---------- */
+const GOALS = [
+  { id: "email", label: "Sort my email", hint: "Show me what matters first" },
+  { id: "calendar", label: "My calendar", hint: "What's coming up today" },
+  { id: "todo", label: "My to-do list", hint: "Things I need to remember" },
+  { id: "weather", label: "Weather", hint: "Today's forecast" },
+  { id: "stocks", label: "Stock market", hint: "Prices I like to watch" },
+  { id: "bank", label: "Bank and bills", hint: "Reminders to check them" },
+  { id: "websites", label: "Favorite websites", hint: "One tap to open them" },
+  { id: "family", label: "Notes with family", hint: "A message board we share" },
+  { id: "texts", label: "Text messages", hint: "From my phone" },
+  { id: "smile", label: "A joke or Bible verse", hint: "Something good each day" },
+];
+const TILE_NAMES = { email: "My mail", calendar: "My calendar", todo: "My to-do list", weather: "Weather", stocks: "Stock market", bank: "Bank and bills", websites: "Favorite websites", family: "Notes with family", smile: "Something good today" };
+const HELPER_NAMES = ["Sunny", "Grace", "Buddy", "Penny"];
+const PROVIDERS = [
+  { id: "gmail", label: "Gmail", hint: "Ends in @gmail.com" },
+  { id: "outlook", label: "Outlook or Hotmail", hint: "@outlook.com, @hotmail.com, @live.com" },
+  { id: "yahoo", label: "Yahoo Mail", hint: "@yahoo.com" },
+  { id: "aol", label: "AOL Mail", hint: "@aol.com" },
+  { id: "icloud", label: "Apple iCloud Mail", hint: "@icloud.com, @me.com" },
+  { id: "unsure", label: "I'm not sure", hint: "That's fine, I'll help" },
+];
+const FORWARD_STEPS = {
+  outlook: ["Go to outlook.com and sign in.", "Click the gear (Settings) at the top right.", "Choose Mail, then Forwarding.", "Turn on forwarding and type your Gmail address.", "Click Save."],
+  yahoo: ["Go to mail.yahoo.com and sign in.", "Click Settings, then More Settings.", "Choose Mailboxes, then your Yahoo address.", "Under Forwarding, type your Gmail address and click Verify.", "Open the email Yahoo sends to Gmail and click the link."],
+  aol: ["AOL does not offer simple forwarding.", "Ask a family member to add your AOL account inside Gmail: Gmail Settings → Accounts and Import → Check mail from other accounts.", "Once that's done, your AOL mail shows up in Gmail and I can sort it."],
+  icloud: ["Go to icloud.com/mail and sign in.", "Click the gear, then Settings, then Mail Forwarding (or Rules).", "Choose Forward my email to, and type your Gmail address.", "Click Save."],
+  unsure: ["Look at your email address. The part after the @ sign tells us.", "If it ends in gmail.com, go back and choose Gmail.", "If it's something else, a family member can forward it to a free Gmail account, and I'll sort it from there."],
+};
+const VERSES = [
+  ["This is the day which the LORD hath made; we will rejoice and be glad in it.", "Psalm 118:24"],
+  ["Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.", "Proverbs 3:5–6"],
+  ["I can do all things through Christ which strengtheneth me.", "Philippians 4:13"],
+  ["But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.", "Isaiah 40:31"],
+  ["The LORD is my shepherd; I shall not want.", "Psalm 23:1"],
+  ["Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.", "Joshua 1:9"],
+  ["It is of the LORD's mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.", "Lamentations 3:22–23"],
+  ["Come unto me, all ye that labour and are heavy laden, and I will give you rest.", "Matthew 11:28"],
+  ["God is our refuge and strength, a very present help in trouble.", "Psalm 46:1"],
+  ["And we know that all things work together for good to them that love God, to them who are the called according to his purpose.", "Romans 8:28"],
+  ["Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.", "Philippians 4:6"],
+  ["Rejoice evermore. Pray without ceasing. In every thing give thanks.", "1 Thessalonians 5:16–18"],
+  ["I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth.", "Psalm 121:1–2"],
+  ["Jesus Christ the same yesterday, and to day, and for ever.", "Hebrews 13:8"],
+];
+const JOKES = [
+  "Why don't eggs tell jokes? They'd crack each other up.",
+  "I'm reading a book about anti-gravity. It's impossible to put down.",
+  "What do you call a fake noodle? An impasta.",
+  "Why did the scarecrow win an award? He was outstanding in his field.",
+  "I used to be a banker, but I lost interest.",
+  "What did one wall say to the other wall? I'll meet you at the corner.",
+  "Why can't a bicycle stand up by itself? It's two tired.",
+  "What do you call a bear with no teeth? A gummy bear.",
+  "How does Moses make his tea? Hebrews it.",
+  "Why didn't Noah go fishing? He only had two worms.",
+  "What kind of car did the apostles drive? A Honda. They were all in one Accord.",
+  "Why did the cookie go to the doctor? It was feeling crumby.",
+  "Time flies like an arrow. Fruit flies like a banana.",
+  "What's the best thing about Switzerland? I don't know, but the flag is a big plus.",
+  "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+  "Why are elevator jokes so good? They work on so many levels.",
+];
+const EXAMPLE_MAIL = [
+  { id: "ex1", msgId: "ex1", from: "Sarah (your daughter) <sarah@example.com>", subject: "Sunday dinner?", snippet: "Hi! Are you still coming Sunday at 5? Let me know so I can get the roast going.", group: "reply", why: "Your daughter is asking if you're coming Sunday.", example: true },
+  { id: "ex2", msgId: "ex2", from: "Dr. Patel's Office <frontdesk@example.com>", subject: "Appointment reminder: Tuesday 10:30 AM", snippet: "This is a reminder of your appointment on Tuesday at 10:30 AM.", group: "important", why: "A doctor's appointment reminder. No reply needed.", example: true },
+  { id: "ex3", msgId: "ex3", from: "Amaz0n Security <alert@amaz0n-help.co>", subject: "URGENT: Your account is suspended", snippet: "Verify your identity within 24 hours or lose access. Click here and enter your password.", group: "scam", why: "Fake urgency and a misspelled sender. Don't click.", example: true },
+  { id: "ex4", msgId: "ex4", from: "Garden Supply Co <deals@example.com>", subject: "Fall sale: 30% off bulbs", snippet: "Plant now for spring color. This weekend only.", group: "later", why: "An ad. Read it whenever you like.", example: true },
+];
+const GROUPS = {
+  reply: { title: "Needs your answer", cls: "reply", color: "var(--reply)" },
+  important: { title: "Good to know", cls: "important", color: "var(--know)" },
+  scam: { title: "Be careful — may be a scam", cls: "scam", color: "var(--scam)" },
+  later: { title: "Can wait (ads and newsletters)", cls: "later", color: "var(--later)" },
+};
+
+/* ---------- state ---------- */
+const LS_KEY = "porchlight.v1";
+function freshState() {
+  return {
+    updatedAt: 0,
+    profile: { setupDone: false, name: "", helper: "Sunny", goals: [], provider: "", vips: [], place: "", tickers: [], bankName: "", bankUrl: "", sites: [], verse: true, jokes: true, order: [], textSize: 1 },
+    tasks: [],
+    mailDone: [],
+  };
+}
+let S = Object.assign(freshState(), lsGet(LS_KEY) || {});
+S.profile = Object.assign(freshState().profile, S.profile || {});
+
+const ui = { view: S.profile.setupDone ? "home" : "setup", step: 0, msgTab: "chat" };
+const caps = { db: null, user: null, mcp: null, sample: null, uid: null, ready: false, sampleOff: false };
+const mail = { status: "idle", items: [], error: null, note: null, at: null };
+const cal = { status: "idle", events: [], error: null };
+let chatTurns = lsGet(LS_KEY + ".chat") || [];
+let family = { posts: [], profiles: {}, status: "idle", error: null };
+let jokeShift = 0;
+
+/* ---------- saving: this device first, then the Claude store ---------- */
+let saveTimer = null, writeChain = Promise.resolve(), docRef = null;
+function save() {
+  S.updatedAt = Date.now();
+  lsSet(LS_KEY, S);
+  if (!docRef) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const body = { state: JSON.parse(JSON.stringify(S)), updatedAt: S.updatedAt };
+    writeChain = writeChain.then(() => docRef.set(body)).catch(() => {});
+  }, 700);
+}
+
+/* ---------- speech ---------- */
+function speak(text) {
+  try {
+    if (!("speechSynthesis" in window)) { toast("Reading aloud isn't available on this device."); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.92;
+    speechSynthesis.speak(u);
+  } catch { toast("Reading aloud isn't available on this device."); }
+}
+function speakBtn(getText, label) {
+  return h("button", { class: "speak", type: "button", onclick: () => speak(typeof getText === "function" ? getText() : getText), html: ICON.speaker + `<span>${label || "Read this to me"}</span>` });
+}
+let toastTimer;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 3200); }
+
+/* ---------- capability wiring ---------- */
+function use(name) {
+  try { return window.claude && window.claude.use ? window.claude.use(name).catch(() => null) : Promise.resolve(null); }
+  catch { return Promise.resolve(null); }
+}
+async function boot() {
+  applyTextSize();
+  render();
+  const [db, user, mcp, sample] = await Promise.all([use("db"), use("user"), use("mcp"), use("sample")]);
+  Object.assign(caps, { db, user, mcp, sample, ready: true });
+  if (user) caps.uid = await user.id();
+  if (db && caps.uid) {
+    docRef = db.doc("data/users/" + caps.uid + "/porch");
+    docRef.onSnapshot((snap) => {
+      if (snap.exists) {
+        const d = snap.data();
+        if (d && d.state && (d.updatedAt || 0) > (S.updatedAt || 0)) {
+          S = Object.assign(freshState(), JSON.parse(JSON.stringify(d.state)));
+          S.profile = Object.assign(freshState().profile, S.profile);
+          lsSet(LS_KEY, S);
+          if (S.profile.setupDone && ui.view === "setup" && ui.step === 0) ui.view = "home";
+          applyTextSize();
+          render();
+        } else if (d && (d.updatedAt || 0) < (S.updatedAt || 0)) save();
+      } else if (S.updatedAt) save();
+    }, () => { docRef = null; });
+  }
+  if (db) subscribeFamily(db);
+  render();
+  if (S.profile.setupDone && has("calendar")) loadCalendar();
+}
+function has(goal) { return S.profile.goals.includes(goal); }
+function applyTextSize() { const r = document.documentElement; r.classList.remove("size-2", "size-3"); if (S.profile.textSize > 1) r.classList.add("size-" + S.profile.textSize); }
+
+function mcpCopy(e, server) {
+  const code = e && e.code;
+  switch (code) {
+    case "needs_reauth": return `Your ${server} connection needs a refresh. In Claude, open Settings, then Connectors, and reconnect ${server}. Then tap Try again.`;
+    case "server_not_connected":
+    case "selection_required":
+    case "server_not_found": return `${server} isn't connected to your Claude account yet. In Claude, open Settings, then Connectors, choose ${server}, and sign in with your Google account. Then come back and tap Try again.`;
+    case "not_in_manifest": return `You chose not to let Porchlight use ${server}. You can turn it back on from this page's Permissions menu.`;
+    case "approval_required": return `Claude needs your OK before I can use ${server}. Tap Try again and choose Allow.`;
+    case "blocked_by_policy": return `Your account's settings don't allow ${server} here.`;
+    case "server_unavailable":
+    case "rate_limited": return `${server} isn't answering right now. Wait a minute and tap Try again.`;
+    case "tool_error": return `${server} said: ${e.message || "something went wrong"}.`;
+    case "not_granted":
+    case "capability_disabled":
+    case "capability_removed": return `Connecting ${server} only works when you open Porchlight inside Claude.`;
+    default: return `Something went wrong talking to ${server}. Tap Try again.`;
+  }
+}
+function sampleCopy(e) {
+  switch (e && e.code) {
+    case "not_granted": case "sampling_disabled": case "not_declared": case "capability_disabled": case "capability_removed":
+      caps.sampleOff = true; return "You chose not to let me use Claude here, so I'm using simple rules instead.";
+    case "rate_limited": return "I've been asked a lot just now. Give me a minute and try again.";
+    case "session_expired": return "Please sign in to Claude again, then try once more.";
+    case "refused": return "I can't help with that one. Try asking a different way.";
+    case "cancelled": return "";
+    default: return "I couldn't finish that just now. Please try again.";
+  }
+}
+const canAsk = () => caps.sample && !caps.sampleOff;
+
+/* ---------- render root ---------- */
+function render() {
+  const app = $("#app");
+  app.replaceChildren();
+  const wrap = h("div", { class: "wrap" });
+  wrap.append(topBar());
+  const views = { setup: viewSetup, home: viewHome, mail: viewMail, todo: viewTodo, messages: viewMessages, settings: viewSettings };
+  wrap.append(...[].concat(views[ui.view]()));
+  app.append(wrap);
+  renderNav();
+}
+function topBar() {
+  return h("div", { class: "top" },
+    h("div", { class: "brand" }, h("span", { class: "lampdot", "aria-hidden": "true" }), "Porchlight"),
+    h("button", { class: "helpbtn", type: "button", onclick: openHelp, html: ICON.help + "<span>Help</span>" }));
+}
+function go(view) { ui.view = view; window.scrollTo(0, 0); render(); if (view === "home" && has("calendar") && cal.status === "idle") loadCalendar(); }
+function renderNav() {
+  const nav = $("#nav");
+  if (ui.view === "setup") { nav.hidden = true; return; }
+  nav.hidden = false;
+  const replyCount = mail.items.filter((m) => m.group === "reply" && !S.mailDone.includes(m.id)).length;
+  const open = S.tasks.filter((t) => !t.done).length;
+  const items = [
+    ["home", "Home", ICON.home, 0],
+    ["mail", "Mail", ICON.mail, replyCount],
+    ["todo", "To-Do", ICON.todo, open],
+    ["messages", "Talk", ICON.chat, 0],
+    ["settings", "My Setup", ICON.gear, 0],
+  ];
+  nav.replaceChildren(...items.map(([id, label, icon, n]) => {
+    const b = h("button", { type: "button", "aria-current": ui.view === id ? "page" : null, onclick: () => go(id), html: icon });
+    const l = h("span", null, label);
+    if (n) l.append(h("span", { class: "badge", "aria-label": n + " waiting" }, n));
+    b.append(l);
+    return b;
+  }));
+}
+
+/* ================================================================
+   SETUP INTERVIEW — one question per screen
+================================================================ */
+const P = () => S.profile;
+const STEPS = [
+  { id: "welcome", when: () => true },
+  { id: "name", when: () => true },
+  { id: "helper", when: () => true },
+  { id: "goals", when: () => true },
+  { id: "provider", when: () => has("email") },
+  { id: "connect", when: () => has("email") },
+  { id: "vips", when: () => has("email") },
+  { id: "calendar", when: () => has("calendar") },
+  { id: "weather", when: () => has("weather") },
+  { id: "stocks", when: () => has("stocks") },
+  { id: "bank", when: () => has("bank") },
+  { id: "websites", when: () => has("websites") },
+  { id: "texts", when: () => has("texts") },
+  { id: "family", when: () => has("family") },
+  { id: "smile", when: () => has("smile") },
+  { id: "order", when: () => tileOrder().length > 1 },
+  { id: "size", when: () => true },
+  { id: "done", when: () => true },
+];
+const liveSteps = () => STEPS.filter((s) => s.when());
+
+function helperSays(text, ...extra) {
+  const initial = (P().helper || "S").trim().charAt(0).toUpperCase();
+  return h("div", { class: "say" },
+    h("div", { class: "avatar", "aria-hidden": "true" }, initial),
+    h("div", { class: "bubble" }, h("p", null, text), ...extra, speakBtn(text)));
+}
+function choiceBtn(label, hint, pressed, onclick) {
+  return h("button", { class: "choice", type: "button", "aria-pressed": pressed ? "true" : "false", onclick },
+    h("span", { class: "box", "aria-hidden": "true" }), h("span", null, label, hint ? h("small", null, hint) : null));
+}
+function navRow(opts) {
+  const o = Object.assign({ back: true, nextLabel: "Next", onNext: null, nextDisabled: false }, opts);
+  const row = h("div", { class: "row" });
+  if (o.back) row.append(h("button", { class: "btn btn-quiet", type: "button", onclick: () => { ui.step = Math.max(0, ui.step - 1); render(); } }, "Back"));
+  row.append(h("button", { class: "btn btn-primary btn-big", type: "button", disabled: o.nextDisabled, onclick: () => { if (o.onNext && o.onNext() === false) return; nextStep(); } }, o.nextLabel));
+  return row;
+}
+function nextStep() { save(); const n = liveSteps().length; ui.step = Math.min(n - 1, ui.step + 1); window.scrollTo(0, 0); render(); }
+
+function viewSetup() {
+  const steps = liveSteps();
+  if (ui.step >= steps.length) ui.step = steps.length - 1;
+  const step = steps[ui.step];
+  const out = [];
+  if (step.id !== "welcome") {
+    out.push(h("div", { class: "progress", "aria-label": `Question ${ui.step} of ${steps.length - 1}` }, steps.slice(1).map((_, i) => h("span", { class: i < ui.step ? "on" : "" }))));
+  }
+  out.push(...[].concat(SETUP[step.id]()));
+  return out;
+}
+
+const SETUP = {
+  welcome() {
+    return [
+      h("div", { class: "hello" }, h("h1", null, "Welcome to Porchlight")),
+      helperSays("Hello there! I'm your new helper. I'll ask you a few easy questions, one at a time, and then I'll set everything up for you. There are no videos to watch and nothing to install. You can change any answer later."),
+      h("button", { class: "btn btn-primary btn-big", type: "button", onclick: nextStep }, "Let's get started"),
+      h("p", { class: "muted small" }, "Tip: tap “Read this to me” on any question to hear it out loud. The Help button at the top is always there."),
+    ];
+  },
+  name() {
+    const input = h("input", { class: "input", id: "f-name", autocomplete: "given-name", value: P().name, placeholder: "For example: Jerry" });
+    return [
+      helperSays("First things first. What would you like me to call you?"),
+      h("div", { class: "field" }, h("label", { for: "f-name" }, "Your name"), input),
+      navRow({ onNext: () => { const v = input.value.trim(); if (!v) { toast("Please type your name, then tap Next."); input.focus(); return false; } P().name = v.slice(0, 40); } }),
+    ];
+  },
+  helper() {
+    const custom = h("input", { class: "input", id: "f-helper", placeholder: "Or type a name you like", value: HELPER_NAMES.includes(P().helper) ? "" : P().helper });
+    const wrap = h("div", { class: "choices" }, HELPER_NAMES.map((n) => choiceBtn(n, null, P().helper === n && !custom.value, () => { P().helper = n; custom.value = ""; render(); })));
+    return [
+      helperSays(`It's nice to meet you, ${P().name}! What would you like to call me? Pick a name, or type your own.`),
+      wrap,
+      h("div", { class: "field" }, h("label", { for: "f-helper" }, "My own name for my helper"), custom),
+      navRow({ onNext: () => { const v = custom.value.trim(); if (v) P().helper = v.slice(0, 20); } }),
+    ];
+  },
+  goals() {
+    const wrap = h("div", { class: "choices" }, GOALS.map((g) => choiceBtn(g.label, g.hint, has(g.id), () => {
+      const set = new Set(P().goals);
+      set.has(g.id) ? set.delete(g.id) : set.add(g.id);
+      P().goals = GOALS.map((x) => x.id).filter((id) => set.has(id));
+      render();
+    })));
+    return [
+      helperSays(`Thank you, ${P().name}. I'm ${P().helper}. What would you like my help with? Tap as many as you like. Tap again to undo.`),
+      wrap,
+      navRow({ nextDisabled: P().goals.length === 0, onNext: () => { P().order = tileOrder(); } }),
+    ];
+  },
+  provider() {
+    return [
+      helperSays("Let's start with your email. Which email do you use?"),
+      h("div", { class: "choices" }, PROVIDERS.map((p) => choiceBtn(p.label, p.hint, P().provider === p.id, () => { P().provider = p.id; render(); }))),
+      navRow({ nextDisabled: !P().provider }),
+    ];
+  },
+  connect() {
+    const box = h("div", { class: "card" });
+    if (P().provider === "gmail") {
+      box.append(
+        h("h3", null, "Connecting your Gmail"),
+        h("p", null, "I'll only look at your mail when you ask me to. I'll never send anything unless you tap Send and then say yes."),
+        h("ol", { class: "steps-list" },
+          h("li", null, "Tap the big blue button below."),
+          h("li", null, "Claude will ask if Porchlight may use Gmail. Tap Allow."),
+          h("li", null, "If Google asks you to sign in, use your Gmail address and password. You type it into Google, not into me."),
+        ),
+      );
+      const result = h("div");
+      const btn = h("button", { class: "btn btn-primary btn-big", type: "button" }, "Connect my Gmail");
+      btn.onclick = async () => {
+        if (!caps.mcp) { result.replaceChildren(h("div", { class: "note" }, caps.ready ? "Connecting Gmail only works when you open Porchlight inside Claude (claude.ai or the Claude app). Everything else still works here." : "One moment, I'm still getting ready. Tap the button again in a few seconds.")); return; }
+        btn.disabled = true; result.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Checking your mailbox…"));
+        try {
+          await caps.mcp.callTool("Gmail", "search_threads", { query: "in:inbox", pageSize: 1 }, { cache: false });
+          P().gmailOk = true; save();
+          result.replaceChildren(h("div", { class: "good" }, "It worked! I can see your mailbox now."));
+        } catch (e) {
+          result.replaceChildren(h("div", { class: "note" }, mcpCopy(e, "Gmail")));
+        } finally { btn.disabled = false; btn.textContent = "Try again"; }
+      };
+      box.append(btn, result);
+      return [helperSays("Good news, Gmail works with me directly. Let's connect it now. I'll walk you through it."), box, navRow({ nextLabel: P().gmailOk ? "Next" : "Skip for now" })];
+    }
+    const steps = FORWARD_STEPS[P().provider] || FORWARD_STEPS.unsure;
+    box.append(
+      h("h3", null, "Here's the easiest way"),
+      h("p", null, "Right now I can read Gmail directly. For other email, the simplest path is to send a copy of your mail to a free Gmail account. A family member can do this in about five minutes:"),
+      h("ol", { class: "steps-list" }, steps.map((s) => h("li", null, s))),
+      h("p", { class: "muted" }, "Until then, you'll see example emails on the Mail page so you can see how I'll sort them."),
+    );
+    return [helperSays("Thank you. I can't open that kind of email directly yet, but there's an easy fix. I've written the steps down so you or a family member can do it any time."), box, navRow({})];
+  },
+  vips() {
+    const input = h("input", { class: "input", id: "f-vip", placeholder: "A name or email, like Sarah or my doctor" });
+    const add = (v) => { v = (v || "").trim(); if (!v) return; if (!P().vips.includes(v)) P().vips.push(v.slice(0, 60)); render(); };
+    const chips = h("div", { class: "chips" }, P().vips.map((v) => h("span", { class: "chip" }, v, h("button", { type: "button", "aria-label": "Remove " + v, onclick: () => { P().vips = P().vips.filter((x) => x !== v); render(); } }, "×"))));
+    return [
+      helperSays("Whose emails should always come first? Think of family, your doctor, your church, or anyone you never want to miss."),
+      h("div", { class: "field" }, h("label", { for: "f-vip" }, "Add a person"), input),
+      h("div", { class: "row" }, h("button", { class: "btn btn-quiet", type: "button", onclick: () => add(input.value) }, "Add this person")),
+      P().vips.length ? chips : h("p", { class: "muted" }, "No one added yet. That's okay. I'll still spot emails from real people."),
+      navRow({ onNext: () => { if (input.value.trim()) add(input.value); } }),
+    ];
+  },
+  calendar() {
+    const result = h("div");
+    const btn = h("button", { class: "btn btn-primary btn-big", type: "button" }, "Connect my Google Calendar");
+    btn.onclick = async () => {
+      if (!caps.mcp) { result.replaceChildren(h("div", { class: "note" }, "Connecting your calendar only works when you open Porchlight inside Claude.")); return; }
+      btn.disabled = true; result.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Looking at your calendar…"));
+      try {
+        await caps.mcp.callTool("Google Calendar", "list_events", { pageSize: 1 }, { cache: false });
+        P().calOk = true; save();
+        result.replaceChildren(h("div", { class: "good" }, "Connected! I'll show what's coming up on your Home page."));
+      } catch (e) { result.replaceChildren(h("div", { class: "note" }, mcpCopy(e, "Google Calendar"))); }
+      finally { btn.disabled = false; btn.textContent = "Try again"; }
+    };
+    return [
+      helperSays("I can show you what's on your Google Calendar each day. Tap the button, then tap Allow when Claude asks."),
+      h("div", { class: "card" }, btn, result),
+      navRow({ nextLabel: P().calOk ? "Next" : "Skip for now" }),
+    ];
+  },
+  weather() {
+    const input = h("input", { class: "input", id: "f-place", inputmode: "text", value: P().place, placeholder: "Zip code, like 75201, or a city like Tulsa, OK" });
+    return [
+      helperSays("Where do you live? Your zip code is easiest. I'll put a weather button on your Home page that opens the National Weather Service forecast for your town."),
+      h("div", { class: "field" }, h("label", { for: "f-place" }, "Zip code or city"), input),
+      navRow({ onNext: () => { P().place = input.value.trim().slice(0, 60); } }),
+    ];
+  },
+  stocks() {
+    const input = h("input", { class: "input", id: "f-tick", value: P().tickers.join(", "), placeholder: "For example: SPY, AAPL, KO" });
+    return [
+      helperSays("Which stocks or funds would you like to keep an eye on? Type their short symbols with commas between them. If you're not sure, SPY follows the whole market."),
+      h("div", { class: "field" }, h("label", { for: "f-tick" }, "Stock symbols"), input),
+      h("p", { class: "muted small" }, "Each one becomes a button that opens today's price on Yahoo Finance."),
+      navRow({ onNext: () => { P().tickers = input.value.split(/[\s,]+/).map((s) => s.trim().toUpperCase().replace(/[^A-Z0-9.^-]/g, "")).filter(Boolean).slice(0, 12); } }),
+    ];
+  },
+  bank() {
+    const name = h("input", { class: "input", id: "f-bank", value: P().bankName, placeholder: "For example: First National" });
+    const url = h("input", { class: "input", id: "f-bankurl", value: P().bankUrl, placeholder: "Your bank's website, if you know it" });
+    return [
+      helperSays("Let's keep your money safe. I will never ask for your bank password, PIN, or account numbers, and nobody honest will ask you for them by email or text either. I'll give you a daily reminder and a safe button to your bank's real website."),
+      h("div", { class: "field" }, h("label", { for: "f-bank" }, "Your bank's name"), name),
+      h("div", { class: "field" }, h("label", { for: "f-bankurl" }, "Bank website (optional)"), url),
+      h("p", { class: "muted small" }, "Tip: copy the website from the back of your bank card or a paper statement, not from an email."),
+      navRow({ onNext: () => { P().bankName = name.value.trim().slice(0, 60); P().bankUrl = safeUrl(url.value); } }),
+    ];
+  },
+  websites() {
+    const nm = h("input", { class: "input", id: "f-site-name", placeholder: "Name, like Church or News" });
+    const ad = h("input", { class: "input", id: "f-site-url", placeholder: "Address, like fbc-example.org" });
+    const add = () => { const u = safeUrl(ad.value); if (!nm.value.trim() || !u) { toast("Please type a name and a website address."); return; } P().sites.push({ name: nm.value.trim().slice(0, 40), url: u }); render(); };
+    return [
+      helperSays("What websites do you visit often? Your church, the news, the library? I'll turn each one into a big button."),
+      h("div", { class: "field" }, h("label", { for: "f-site-name" }, "Name"), nm),
+      h("div", { class: "field" }, h("label", { for: "f-site-url" }, "Website address"), ad),
+      h("div", { class: "row" }, h("button", { class: "btn btn-quiet", type: "button", onclick: add }, "Add this website")),
+      P().sites.length ? h("ul", { class: "list" }, P().sites.map((s, i) => h("li", { class: "order-row" }, h("span", { class: "name" }, s.name, h("span", { class: "muted small", style: "display:block;font-weight:400;overflow-wrap:anywhere" }, s.url)), h("button", { type: "button", "aria-label": "Remove " + s.name, onclick: () => { P().sites.splice(i, 1); render(); } }, "×")))) : null,
+      navRow({ onNext: () => { if (nm.value.trim() && ad.value.trim()) { const u = safeUrl(ad.value); if (u) P().sites.push({ name: nm.value.trim().slice(0, 40), url: u }); } } }),
+    ];
+  },
+  texts() {
+    return [
+      helperSays("About text messages: phones keep texts locked inside the phone, so I can't read them yet. Here's what I can do today. If someone texts you something confusing or suspicious, type or paste it into the Talk page and I'll explain it and tell you if it looks like a scam."),
+      h("div", { class: "card" }, h("p", null, "Coming later: when phone makers allow it, I'll sort texts the same way I sort email.")),
+      navRow({}),
+    ];
+  },
+  family() {
+    return [
+      helperSays("The Notes with family board is a private message board for you and the people you invite. Once we're done, tap Share at the top of this page in Claude and add your family. They can leave you notes, and you can write back."),
+      navRow({}),
+    ];
+  },
+  smile() {
+    return [
+      helperSays("Would you like a little something good each day?"),
+      h("div", { class: "choices" },
+        choiceBtn("A Bible verse each morning", "From the King James Version", P().verse, () => { P().verse = !P().verse; render(); }),
+        choiceBtn("A clean joke each day", "Good for a groan or a grin", P().jokes, () => { P().jokes = !P().jokes; render(); })),
+      navRow({}),
+    ];
+  },
+  order() {
+    if (!P().order.length) P().order = tileOrder();
+    const ord = tileOrder();
+    const move = (i, d) => { const j = i + d; if (j < 0 || j >= ord.length) return; [ord[i], ord[j]] = [ord[j], ord[i]]; P().order = ord; render(); };
+    return [
+      helperSays("Here's what your Home page will show. The top one is what you'll see first. Use the arrows to move things up or down."),
+      h("div", { class: "list" }, ord.map((id, i) => h("div", { class: "order-row" },
+        h("span", { class: "name" }, `${i + 1}. ${TILE_NAMES[id]}`),
+        h("button", { type: "button", "aria-label": "Move " + TILE_NAMES[id] + " up", disabled: i === 0, onclick: () => move(i, -1) }, "▲"),
+        h("button", { type: "button", "aria-label": "Move " + TILE_NAMES[id] + " down", disabled: i === ord.length - 1, onclick: () => move(i, 1) }, "▼")))),
+      navRow({}),
+    ];
+  },
+  size() {
+    const opt = (n, label) => h("button", { class: "choice", type: "button", "aria-pressed": P().textSize === n ? "true" : "false", onclick: () => { P().textSize = n; applyTextSize(); render(); } },
+      h("span", { style: `font-size:${[0, 1.1, 1.35, 1.6][n]}rem` }, "Aa"), h("span", null, label));
+    return [
+      helperSays("Last question. How big should the words be? Pick the one that's most comfortable to read."),
+      h("div", { class: "sizes" }, opt(1, "Big"), opt(2, "Bigger"), opt(3, "Biggest")),
+      navRow({}),
+    ];
+  },
+  done() {
+    const bits = [];
+    if (has("email")) bits.push(P().provider === "gmail" ? "sort your Gmail" : "show you how I'll sort your email");
+    if (has("calendar")) bits.push("show your calendar");
+    if (has("todo")) bits.push("keep your to-do list");
+    if (has("weather") && P().place) bits.push("get your weather");
+    if (has("smile")) bits.push("brighten your day");
+    const line = bits.length ? `I'm ready to ${bits.slice(0, -1).join(", ")}${bits.length > 1 ? " and " : ""}${bits.slice(-1)}.` : "I'm ready to help.";
+    return [
+      h("div", { class: "hello" }, h("h1", null, `All set, ${P().name}!`)),
+      helperSays(`${line} Your Home page is ready. If you ever get stuck, tap Help at the top, or tap Talk at the bottom and just ask me.`),
+      h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => { P().setupDone = true; P().order = tileOrder(); save(); go("home"); } }, "Take me to my Home page"),
+      h("div", { class: "row" }, h("button", { class: "btn btn-quiet", type: "button", onclick: () => { ui.step = Math.max(0, ui.step - 1); render(); } }, "Back")),
+    ];
+  },
+};
+
+function tileOrder() {
+  const wanted = P().goals.filter((g) => TILE_NAMES[g]);
+  const kept = (P().order || []).filter((id) => wanted.includes(id));
+  return kept.concat(wanted.filter((id) => !kept.includes(id)));
+}
+
+/* ================================================================
+   HOME
+================================================================ */
+function greeting() { const hr = new Date().getHours(); return hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening"; }
+function viewHome() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const out = [h("div", { class: "hello" }, h("h1", null, `${greeting()}, ${P().name || "friend"}`), h("p", { class: "date" }, dateStr))];
+  const order = tileOrder();
+  if (!order.length) out.push(h("div", { class: "card" }, h("p", null, "Your Home page is empty. Tap My Setup at the bottom to choose what I help with.")));
+  for (const id of order) { const t = TILES[id] && TILES[id](); if (t) out.push(t); }
+  return out;
+}
+function tile(title, ...kids) { return h("section", { class: "card" }, h("div", { class: "card-head" }, h("h2", null, title)), ...kids); }
+
+const TILES = {
+  email() {
+    if (mail.status === "ready" || mail.status === "example") {
+      const live = mail.items.filter((m) => !S.mailDone.includes(m.id));
+      const n = (g) => live.filter((m) => m.group === g).length;
+      return tile("My mail",
+        mail.status === "example" ? h("p", { class: "example-flag" }, "These are example emails, not yours.") : null,
+        h("div", { class: "counts" }, ["reply", "important", "scam", "later"].map((g) => h("div", { class: "count g-" + g }, h("b", null, n(g)), h("span", null, GROUPS[g].title.split(" — ")[0])))),
+        h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => go("mail") }, n("reply") ? `Show me the ${n("reply")} that need${n("reply") === 1 ? "s" : ""} an answer` : "Open my mail"));
+    }
+    return tile("My mail",
+      h("p", null, P().provider === "gmail" ? "I'll read your newest emails and put the important ones on top." : "See how I'll sort your email, using a few examples."),
+      h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => { go("mail"); sortMail(); } }, "Go through my mail"));
+  },
+  calendar() {
+    const body = [];
+    if (cal.status === "loading") body.push(h("div", { class: "status" }, h("span", { class: "spinner" }), "Checking your calendar…"));
+    else if (cal.status === "error") body.push(h("div", { class: "note" }, cal.error), h("button", { class: "btn btn-quiet", type: "button", onclick: () => loadCalendar(true) }, "Try again"));
+    else if (cal.status === "ready" && !cal.events.length) body.push(h("p", null, "Nothing on your calendar today or tomorrow."));
+    else if (cal.status === "ready") body.push(h("ul", { class: "list" }, cal.events.map((e) => h("li", { class: "event" }, h("span", { class: "when" }, e.when), h("span", null, e.title)))));
+    else body.push(h("button", { class: "btn btn-quiet", type: "button", onclick: () => loadCalendar(true) }, "Show my calendar"));
+    return tile("Today and tomorrow", ...body);
+  },
+  todo() {
+    const open = S.tasks.filter((t) => !t.done);
+    return tile("My to-do list",
+      open.length ? h("ul", { class: "list" }, open.slice(0, 4).map((t) => h("li", null, "• " + t.text))) : h("p", { class: "muted" }, "Nothing on your list. Enjoy your day!"),
+      h("button", { class: "btn btn-quiet", type: "button", onclick: () => go("todo") }, open.length > 4 ? `See all ${open.length}` : "Open my list"));
+  },
+  weather() {
+    if (!P().place) return tile("Weather", h("p", null, "Tell me your zip code in My Setup and I'll add your forecast button."));
+    const url = "https://forecast.weather.gov/zipcity.php?inputstring=" + encodeURIComponent(P().place);
+    return tile("Weather", h("a", { class: "linkbtn", href: url, target: "_blank", rel: "noopener" }, h("span", null, `Forecast for ${P().place}`), h("span", { class: "go" }, "Open ↗")), h("p", { class: "muted small" }, "From the National Weather Service. Opens in a new tab."));
+  },
+  stocks() {
+    if (!P().tickers.length) return tile("Stock market", h("p", null, "Add stock symbols in My Setup."));
+    return tile("Stock market", h("div", { class: "list" }, P().tickers.map((t) => h("a", { class: "linkbtn", href: "https://finance.yahoo.com/quote/" + encodeURIComponent(t), target: "_blank", rel: "noopener" }, h("span", null, t), h("span", { class: "go" }, "Today's price ↗")))), h("p", { class: "muted small" }, "Prices open on Yahoo Finance in a new tab."));
+  },
+  bank() {
+    return tile("Bank and bills",
+      h("p", null, `Take a minute to look over your ${P().bankName || "bank"} account for anything you don't recognize.`),
+      P().bankUrl ? h("a", { class: "linkbtn", href: P().bankUrl, target: "_blank", rel: "noopener" }, h("span", null, P().bankName || "My bank"), h("span", { class: "go" }, "Open ↗")) : null,
+      h("div", { class: "note" }, "Remember: your bank will never email or text you asking for your password or PIN. If anyone does, it's a scam. Call the number on the back of your card instead."));
+  },
+  websites() {
+    if (!P().sites.length) return tile("Favorite websites", h("p", null, "Add websites in My Setup."));
+    return tile("Favorite websites", h("div", { class: "list" }, P().sites.map((s) => h("a", { class: "linkbtn", href: s.url, target: "_blank", rel: "noopener" }, h("span", null, s.name), h("span", { class: "go" }, "Open ↗")))));
+  },
+  family() {
+    const latest = family.posts[0];
+    return tile("Notes with family",
+      latest ? h("p", null, h("b", null, (family.profiles[latest.by]?.name || "Someone") + ": "), latest.text.slice(0, 160)) : h("p", { class: "muted" }, "No notes yet."),
+      h("button", { class: "btn btn-quiet", type: "button", onclick: () => { ui.msgTab = "family"; go("messages"); } }, "Open family notes"));
+  },
+  smile() {
+    const kids = [];
+    if (P().verse) { const [v, ref] = VERSES[dayIndex() % VERSES.length]; kids.push(h("p", { class: "verse" }, `“${v}”`), h("p", { class: "muted" }, "— " + ref + " (KJV)"), speakBtn(`${v} ${ref}`, "Read the verse to me")); }
+    if (P().jokes) {
+      const j = JOKES[(dayIndex() + jokeShift) % JOKES.length];
+      kids.push(h("p", null, h("b", null, "Today's joke: "), j), h("div", { class: "row" }, h("button", { class: "btn btn-quiet", type: "button", onclick: () => { jokeShift++; render(); } }, "Tell me another"), speakBtn(j, "Read the joke")));
+    }
+    if (!kids.length) kids.push(h("p", { class: "muted" }, "Turn on a verse or a joke in My Setup."));
+    return tile("Something good today", ...kids);
+  },
+};
+
+async function loadCalendar(force) {
+  if (!caps.ready) return;
+  if (!caps.mcp) { cal.status = "error"; cal.error = "Your calendar shows up when you open Porchlight inside Claude."; render(); return; }
+  cal.status = "loading"; if (ui.view === "home") render();
+  const now = new Date(), end = new Date(now); end.setDate(end.getDate() + 2); end.setHours(0, 0, 0, 0);
+  try {
+    const r = await caps.mcp.callTool("Google Calendar", "list_events", { startTime: localISO(now), endTime: localISO(end), orderBy: "startTime", pageSize: 10 }, force ? { cache: { refresh: true, staleTime: 300000 } } : { cache: { staleTime: 300000 } });
+    const evs = (r.payload && r.payload.events) || [];
+    const today = new Date().toDateString();
+    cal.events = evs.filter((e) => e.status !== "cancelled").map((e) => {
+      let when;
+      if (e.start && e.start.dateTime) {
+        const d = new Date(e.start.dateTime);
+        when = (d.toDateString() === today ? "" : "Tmrw ") + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      } else {
+        const ds = (e.start && e.start.date || "").slice(0, 10);
+        const [y, m, dd] = ds.split("-").map(Number);
+        const d = new Date(y, (m || 1) - 1, dd || 1);
+        when = d.toDateString() === today ? "All day" : "Tmrw, all day";
+      }
+      return { when, title: e.summary || "(No title)" };
+    });
+    cal.status = "ready";
+  } catch (e) { cal.status = "error"; cal.error = mcpCopy(e, "Google Calendar"); }
+  if (ui.view === "home") render();
+}
+
+/* ================================================================
+   MAIL
+================================================================ */
+const SCAM_RE = /(gift ?card|wire transfer|verify your (account|identity)|account (is |has been )?(suspended|locked)|password (expired|reset)|urgent action|act now|you('ve| have) won|lottery|sweepstakes|bitcoin|crypto|social security number|irs refund|tech support|unusual sign-?in)/i;
+const LATER_RE = /(unsubscribe|newsletter|% off|sale|deal|webinar|promo|no-?reply|noreply|digest)/i;
+function ruleSort(m) {
+  const hay = `${m.from} ${m.subject} ${m.snippet}`.toLowerCase();
+  const vip = P().vips.some((v) => v && hay.includes(v.toLowerCase()));
+  if (vip) return { group: "reply", why: "From someone on your important list." };
+  if (SCAM_RE.test(hay)) return { group: "scam", why: "Has warning signs of a scam. Don't click links." };
+  if (m.labels.some((l) => /CATEGORY_(PROMOTIONS|SOCIAL|FORUMS)/.test(l)) || LATER_RE.test(hay)) return { group: "later", why: "Looks like an ad or newsletter." };
+  if (m.labels.includes("IMPORTANT")) return { group: "important", why: "Gmail marked this as important." };
+  return { group: "important", why: "Worth a look when you have time." };
+}
+
+async function sortMail() {
+  mail.error = null; mail.note = null;
+  if (P().provider !== "gmail") { mail.items = EXAMPLE_MAIL.slice(); mail.status = "example"; render(); return; }
+  if (!caps.ready) { mail.status = "loading"; render(); setTimeout(sortMail, 1500); return; }
+  if (!caps.mcp) { mail.items = EXAMPLE_MAIL.slice(); mail.status = "example"; mail.note = "I can read your Gmail when you open Porchlight inside Claude. For now, here are examples."; render(); return; }
+  mail.status = "loading"; render();
+  let threads;
+  try {
+    const r = await caps.mcp.callTool("Gmail", "search_threads", { query: "in:inbox newer_than:5d", pageSize: 30 }, { cache: false });
+    threads = (r.payload && r.payload.threads) || [];
+  } catch (e) { mail.status = "error"; mail.error = mcpCopy(e, "Gmail"); render(); return; }
+  mail.items = threads.filter((t) => t.messages && t.messages.length).map((t) => {
+    const m = t.messages[t.messages.length - 1];
+    const item = { id: t.id, msgId: m.id, from: m.sender || "", subject: decodeEntities(m.subject || "(No subject)"), snippet: decodeEntities(m.snippet || ""), date: m.date, labels: m.labelIds || [], url: t.viewUrl || m.viewUrl || "", count: t.messages.length };
+    return Object.assign(item, ruleSort(item));
+  });
+  mail.status = "ready"; mail.at = new Date();
+  if (canAsk() && mail.items.length) {
+    mail.status = "thinking"; render();
+    const list = mail.items.map((m, i) => ({ i, from: m.from, subject: m.subject, preview: m.snippet.slice(0, 220), gmailLabels: m.labels.filter((l) => /IMPORTANT|CATEGORY/.test(l)) }));
+    const prompt = `You help ${P().name}, an older adult who is not comfortable with technology, sort their email inbox.
+People who matter most to them: ${P().vips.join("; ") || "(none listed)"}.
+
+Put every email in exactly one group:
+- "reply": a real person or an organization they deal with expects an answer or action from them (family, friends, doctor, church, a bill that is due, a form to return). Emails from the people above usually go here.
+- "important": worth reading but needs no reply (appointment reminders, delivery notices, statements, receipts, news from their own groups).
+- "scam": signs of phishing or fraud: fake urgency, prizes, gift cards, requests for passwords or payment from unexpected senders, misspelled company names, odd sender addresses. When unsure about a money or login request from an unknown sender, choose "scam".
+- "later": ads, sales, newsletters, social media notices.
+
+For each, write "why": under 14 plain words a grandparent would understand, no jargon.
+Reply with only a JSON array like [{"i":0,"group":"reply","why":"Your daughter asks if you can come Sunday."}].
+
+Emails:
+${JSON.stringify(list)}`;
+    try {
+      const res = await caps.sample.json(prompt, { modelTier: "quick", cache: { gcTime: 600000 } });
+      if (Array.isArray(res)) for (const r of res) {
+        const m = mail.items[Number(r.i)];
+        if (m && GROUPS[r.group]) { m.group = r.group; if (r.why) m.why = String(r.why).slice(0, 140); }
+      }
+    } catch (e) { mail.note = sampleCopy(e) || null; }
+    mail.status = "ready";
+  }
+  render();
+}
+
+function viewMail() {
+  const out = [h("div", { class: "hello" }, h("h1", null, "My mail"))];
+  if (mail.status === "idle") {
+    out.push(helperSays(`Want me to go through your mail, ${P().name}? I'll put what needs an answer on top and warn you about anything that looks like a scam.`),
+      h("button", { class: "btn btn-primary btn-big", type: "button", onclick: sortMail }, "Go through my mail"));
+    return out;
+  }
+  if (mail.status === "loading" || mail.status === "thinking") {
+    out.push(h("div", { class: "card" }, h("div", { class: "status" }, h("span", { class: "spinner" }), mail.status === "loading" ? "Opening your mailbox…" : `Reading your ${mail.items.length} newest emails and sorting them…`), h("p", { class: "muted small" }, "This can take up to a minute. If Claude asks for permission, tap Allow.")));
+    return out;
+  }
+  if (mail.status === "error") {
+    out.push(h("div", { class: "note" }, mail.error), h("button", { class: "btn btn-primary btn-big", type: "button", onclick: sortMail }, "Try again"));
+    return out;
+  }
+  if (mail.status === "example") out.push(h("div", { class: "note" }, mail.note || "These are example emails to show you how I sort mail. To sort your real email, choose Gmail in My Setup (see the steps there for other email)."));
+  else if (mail.note) out.push(h("div", { class: "note" }, mail.note));
+  const live = mail.items.filter((m) => !S.mailDone.includes(m.id));
+  if (!live.length) out.push(helperSays("You're all caught up! Nothing new in the last five days."));
+  for (const g of ["reply", "scam", "important", "later"]) {
+    const items = live.filter((m) => m.group === g);
+    if (!items.length) continue;
+    out.push(h("section", { class: "group" },
+      h("div", { class: "group-title" }, h("span", { class: "dot", style: `background:${GROUPS[g].color}` }), h("h2", null, `${GROUPS[g].title} (${items.length})`)),
+      ...items.map(mailCard)));
+  }
+  out.push(h("div", { class: "row" },
+    h("button", { class: "btn btn-quiet", type: "button", onclick: sortMail }, "Check for new mail"),
+    S.mailDone.length ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => { S.mailDone = []; save(); render(); } }, "Show emails I finished") : null));
+  if (mail.at) out.push(h("p", { class: "muted small" }, "Last checked at " + mail.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })));
+  return out;
+}
+function mailCard(m) {
+  return h("article", { class: "mail " + m.group },
+    h("div", { class: "from" }, senderName(m.from)),
+    h("div", { class: "subj" }, m.subject),
+    h("div", { class: "why" }, m.why),
+    h("div", { class: "row" },
+      h("button", { class: "btn btn-primary", type: "button", onclick: () => openReader(m) }, m.group === "scam" ? "Show me why" : "Read it"),
+      m.group === "reply" ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => openReader(m, true) }, "Help me answer") : null,
+      h("button", { class: "btn btn-quiet", type: "button", onclick: () => { S.mailDone = [m.id].concat(S.mailDone).slice(0, 300); save(); render(); toast("Moved out of the way."); } }, "I'm done with this")));
+}
+
+/* reader sheet */
+function openSheet(nodes) {
+  const s = $("#sheet"), inner = $("#sheetInner");
+  inner.replaceChildren(...nodes);
+  s.hidden = false;
+  inner.scrollTop = 0;
+  const first = inner.querySelector("button"); if (first) first.focus();
+}
+function closeSheet() { $("#sheet").hidden = true; try { speechSynthesis.cancel(); } catch {} }
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
+
+async function openReader(m, startReply) {
+  const bodyBox = h("div", { class: "mailbody" }, m.snippet);
+  const explainBox = h("div");
+  const replyBox = h("div");
+  let fullText = m.snippet, lastMsgId = m.msgId;
+  const closeBtn = h("button", { class: "btn btn-quiet", type: "button", onclick: closeSheet }, "Close");
+  const head = h("div", { class: "card-head" }, h("h2", null, m.subject), closeBtn);
+  const meta = h("p", null, h("b", null, "From: "), m.from);
+  const actions = h("div", { class: "row" },
+    h("button", { class: "btn btn-quiet", type: "button", onclick: () => speak(`Email from ${senderName(m.from)}. ${m.subject}. ${fullText}`), html: ICON.speaker + "<span>Read it to me</span>" }),
+    canAsk() ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => explain() }, "Explain it simply") : null,
+    m.group !== "scam" ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => composeReply() }, "Help me answer") : null,
+    h("button", { class: "btn btn-quiet", type: "button", onclick: () => { addTask(`Follow up: ${m.subject}`, senderName(m.from)); toast("Added to your to-do list."); } }, "Add to my to-do list"),
+    m.url ? h("a", { class: "btn btn-quiet", href: m.url, target: "_blank", rel: "noopener" }, "Open in Gmail ↗") : null);
+  const warn = m.group === "scam" ? h("div", { class: "note" }, h("b", null, "Be careful. "), m.why + " Don't click links, call numbers, or send money from this email. If you're unsure, call the company using a number you already trust.") : null;
+  openSheet([head, meta, warn, bodyBox, actions, explainBox, replyBox]);
+
+  if (!m.example && caps.mcp) {
+    bodyBox.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Opening the whole email…"));
+    try {
+      const r = await caps.mcp.callTool("Gmail", "get_thread", { threadId: m.id, messageFormat: "PLAIN_TEXT" }, { cache: { staleTime: 300000 } });
+      const msgs = (r.payload && r.payload.messages) || [];
+      const last = msgs[msgs.length - 1];
+      if (last) {
+        lastMsgId = last.id || lastMsgId;
+        fullText = decodeEntities(last.plaintextBody || last.plaintext_body || last.snippet || m.snippet).replace(/\n{3,}/g, "\n\n").trim();
+      }
+      bodyBox.textContent = fullText.slice(0, 8000) + (fullText.length > 8000 ? "\n\n… (open in Gmail to see the rest)" : "");
+    } catch (e) { bodyBox.replaceChildren(m.snippet, h("p", { class: "muted small" }, mcpCopy(e, "Gmail"))); }
+  }
+
+  async function explain() {
+    explainBox.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Reading it carefully…"));
+    try {
+      const { text } = await caps.sample(`Explain this email to ${P().name}, an older adult, in 3 short plain sentences: who it is from, what it is about, and what (if anything) they should do. If it looks like a scam, say so first and say not to click anything. No jargon, no markdown.\n\nFrom: ${m.from}\nSubject: ${m.subject}\n\n${fullText.slice(0, 6000)}`, { modelTier: "quick" });
+      explainBox.replaceChildren(helperSays(text.trim()));
+    } catch (e) { const c = sampleCopy(e); explainBox.replaceChildren(c ? h("div", { class: "note" }, c) : ""); }
+  }
+
+  function composeReply() {
+    const wish = h("input", { class: "input", id: "f-wish", placeholder: "In your own words, like: Yes, I'll be there Sunday" });
+    const draft = h("textarea", { class: "input", id: "f-draft", placeholder: "Your answer will appear here. You can change any of it." });
+    const status = h("div");
+    const writeBtn = h("button", { class: "btn btn-quiet", type: "button" }, "Write it for me");
+    writeBtn.onclick = async () => {
+      if (!canAsk()) { status.replaceChildren(h("div", { class: "note" }, "I can write answers when you open Porchlight inside Claude. You can still type your answer in the box.")); return; }
+      writeBtn.disabled = true; status.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Writing…"));
+      try {
+        const { text } = await caps.sample(`Write a short, warm email reply for ${P().name} to send. Keep their meaning: "${wish.value.trim() || "a kind, brief reply"}". Plain text only, no subject line, no markdown, under 90 words. Sign it "${P().name}".\n\nThe email they are answering:\nFrom: ${m.from}\nSubject: ${m.subject}\n\n${fullText.slice(0, 4000)}`, { modelTier: "quick", cache: false, onText: ({ text }) => { draft.value = text; } });
+        draft.value = text.trim(); status.replaceChildren();
+      } catch (e) { const c = sampleCopy(e); status.replaceChildren(c ? h("div", { class: "note" }, c) : ""); }
+      finally { writeBtn.disabled = false; }
+    };
+    const sendBtn = h("button", { class: "btn btn-primary btn-big", type: "button" }, "Send my answer");
+    sendBtn.onclick = () => {
+      const body = draft.value.trim();
+      if (!body) { toast("Please write your answer first."); draft.focus(); return; }
+      if (m.example) { status.replaceChildren(h("div", { class: "note" }, "This is an example email, so nothing was sent. With your real Gmail, this button sends your answer.")); return; }
+      if (!caps.mcp) { status.replaceChildren(h("div", { class: "note" }, "Sending works when you open Porchlight inside Claude.")); return; }
+      const to = senderEmail(m.from);
+      const yes = h("button", { class: "btn btn-danger", type: "button" }, "Yes, send it");
+      const no = h("button", { class: "btn btn-quiet", type: "button", onclick: () => status.replaceChildren() }, "Not yet");
+      yes.onclick = async () => {
+        yes.disabled = true; no.disabled = true;
+        status.replaceChildren(h("div", { class: "status" }, h("span", { class: "spinner" }), "Sending…"));
+        try {
+          await caps.mcp.callTool("Gmail", "reply", { messageId: lastMsgId, body });
+          status.replaceChildren(h("div", { class: "good" }, `Sent to ${senderName(m.from)}.`));
+          sendBtn.disabled = true; draftBtn.disabled = true;
+          S.mailDone = [m.id].concat(S.mailDone).slice(0, 300); save();
+        } catch (e) {
+          status.replaceChildren(h("div", { class: "note" }, mcpCopy(e, "Gmail") + " Before trying again, check your Gmail Sent folder, in case it went through."));
+        }
+      };
+      status.replaceChildren(h("div", { class: "card" }, h("p", null, h("b", null, `Send this answer to ${senderName(m.from)}`), to ? ` (${to})` : "", "?"), h("div", { class: "row" }, yes, no)));
+    };
+    const draftBtn = h("button", { class: "btn btn-quiet", type: "button" }, "Save it as a draft instead");
+    draftBtn.onclick = async () => {
+      const body = draft.value.trim();
+      if (!body) { toast("Please write your answer first."); return; }
+      if (m.example || !caps.mcp) { status.replaceChildren(h("div", { class: "note" }, m.example ? "This is an example email, so nothing was saved." : "Saving drafts works when you open Porchlight inside Claude.")); return; }
+      draftBtn.disabled = true;
+      try {
+        const to = senderEmail(m.from);
+        const input = { replyToMessageId: lastMsgId, body, subject: /^re:/i.test(m.subject) ? m.subject : "Re: " + m.subject };
+        if (to) input.to = [to];
+        await caps.mcp.callTool("Gmail", "create_draft", input);
+        status.replaceChildren(h("div", { class: "good" }, "Saved in your Gmail Drafts. You can send it from Gmail any time."));
+      } catch (e) { status.replaceChildren(h("div", { class: "note" }, mcpCopy(e, "Gmail"))); draftBtn.disabled = false; }
+    };
+    replyBox.replaceChildren(h("div", { class: "card" },
+      h("h3", null, `Your answer to ${senderName(m.from)}`),
+      h("div", { class: "field" }, h("label", { for: "f-wish" }, "What do you want to say?"), wish),
+      writeBtn,
+      h("div", { class: "field" }, h("label", { for: "f-draft" }, "Your answer"), draft),
+      sendBtn, draftBtn, status));
+    replyBox.scrollIntoView({ behavior: "smooth", block: "start" });
+    wish.focus();
+  }
+  if (startReply) composeReply();
+}
+
+/* ================================================================
+   TO-DO
+================================================================ */
+function addTask(text, from) { text = (text || "").trim(); if (!text) return null; const t = { id: uid(), text: text.slice(0, 200), done: false, from: from || "", at: Date.now() }; S.tasks.unshift(t); S.tasks = S.tasks.slice(0, 200); save(); return t; }
+function viewTodo() {
+  const input = h("input", { class: "input", id: "f-task", placeholder: "For example: Call the pharmacy" });
+  const add = () => { if (addTask(input.value)) { render(); setTimeout(() => $("#f-task") && $("#f-task").focus(), 0); } };
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") add(); });
+  const open = S.tasks.filter((t) => !t.done), done = S.tasks.filter((t) => t.done);
+  const item = (t) => h("li", { class: "todo" + (t.done ? " done" : "") },
+    h("button", { class: "check", type: "button", "aria-label": (t.done ? "Mark not done: " : "Mark done: ") + t.text, onclick: () => { t.done = !t.done; save(); render(); if (t.done) toast("Nice work!"); } }),
+    h("span", { class: "text" }, t.text, t.from ? h("span", { class: "from" }, "From an email by " + t.from) : null),
+    h("button", { class: "del", type: "button", "aria-label": "Remove " + t.text, onclick: () => { S.tasks = S.tasks.filter((x) => x !== t); save(); render(); } }, "Remove"));
+  return [
+    h("div", { class: "hello" }, h("h1", null, "My to-do list")),
+    h("div", { class: "card" }, h("div", { class: "field" }, h("label", { for: "f-task" }, "Add something to remember"), input), h("button", { class: "btn btn-primary btn-big", type: "button", onclick: add }, "Add to my list")),
+    open.length ? h("ul", { class: "list" }, open.map(item)) : helperSays("Your list is empty. Add anything you want me to remember, or ask me on the Talk page, like “Remind me to call Sarah.”"),
+    done.length ? h("h2", null, `Finished (${done.length})`) : null,
+    done.length ? h("ul", { class: "list" }, done.map(item)) : null,
+    done.length ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => { S.tasks = S.tasks.filter((t) => !t.done); save(); render(); } }, "Clear finished items") : null,
+  ];
+}
+
+/* ================================================================
+   TALK — chat with the helper, and the family board
+================================================================ */
+function viewMessages() {
+  const tabs = h("div", { class: "tabs", role: "tablist" },
+    h("button", { type: "button", role: "tab", "aria-selected": ui.msgTab === "chat" ? "true" : "false", onclick: () => { ui.msgTab = "chat"; render(); } }, `Talk with ${P().helper}`),
+    h("button", { type: "button", role: "tab", "aria-selected": ui.msgTab === "family" ? "true" : "false", onclick: () => { ui.msgTab = "family"; render(); } }, "Family notes"));
+  return [h("div", { class: "hello" }, h("h1", null, "Talk")), tabs].concat(ui.msgTab === "chat" ? viewChat() : viewFamily());
+}
+
+let chatBusy = false, chatCtl = null;
+function chatRules() {
+  const open = S.tasks.filter((t) => !t.done).map((t) => t.text);
+  return `You are ${P().helper}, a warm, patient personal helper inside an app called Porchlight, talking with ${P().name}, an older adult who is not comfortable with technology.
+How to talk: short sentences, plain words, no jargon, no markdown symbols. Be kind and encouraging, never rushed. Keep answers under 110 words unless asked for more.
+Values: clean, family-friendly humor only. Respect Christian faith and traditional values; you may share a Bible verse or a prayer if asked.
+Safety: never ask for passwords, PINs, bank or card numbers, or Social Security numbers. If they paste a message, email, or text, tell them plainly whether it looks like a scam and what to do. Encourage calling a trusted family member or the company's real phone number when unsure.
+The app has big buttons at the bottom: Home, Mail (sorts their email), To-Do (their list), Talk (here), My Setup (change answers, text size). Point them to these when it helps.
+Their to-do list right now: ${open.length ? open.join("; ") : "empty"}.
+Today is ${new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}.`;
+}
+function viewChat() {
+  const log = h("div", { class: "chat", id: "chatlog" });
+  if (!chatTurns.length) log.append(helperSays(`Hi ${P().name}! Ask me anything. I can tell you a joke, explain a confusing email or text, help you write a note, or add things to your to-do list.`));
+  for (const t of chatTurns) log.append(t.role === "user" ? h("div", { class: "mine" }, h("div", { class: "bubble me" }, t.content)) : helperSays(t.content));
+  const input = h("textarea", { class: "input", id: "f-chat", placeholder: "Type here. You can also paste a text message you got." , rows: 3 });
+  const status = h("div");
+  const send = (text) => sendChat(text || input.value, input, status, log);
+  const quick = ["Tell me a joke", "Is this a scam? I'll paste it next", "Help me write a thank-you note", "What's on my list today?", "Share a Bible verse"];
+  return [
+    log,
+    status,
+    h("div", { class: "chips" }, quick.map((q) => h("button", { class: "btn btn-quiet", type: "button", onclick: () => send(q) }, q))),
+    h("div", { class: "card" }, h("div", { class: "field" }, h("label", { for: "f-chat" }, `Your message to ${P().helper}`), input),
+      h("div", { class: "row" }, h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => send() }, "Send"),
+        chatTurns.length ? h("button", { class: "btn btn-quiet", type: "button", onclick: () => { chatTurns = []; lsSet(LS_KEY + ".chat", chatTurns); render(); } }, "Start a new talk") : null)),
+  ];
+}
+async function sendChat(text, input, status, log) {
+  text = (text || "").trim();
+  if (!text || chatBusy) return;
+  chatTurns.push({ role: "user", content: text.slice(0, 4000) });
+  if (input) input.value = "";
+  log.append(h("div", { class: "mine" }, h("div", { class: "bubble me" }, text)));
+  const p = h("p", null, "Thinking…");
+  const bubble = h("div", { class: "bubble" }, p);
+  const row = h("div", { class: "say" }, h("div", { class: "avatar", "aria-hidden": "true" }, (P().helper || "S").charAt(0).toUpperCase()), bubble);
+  log.append(row);
+  row.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  if (!canAsk()) {
+    let reply;
+    if (/joke|laugh|funny/i.test(text)) reply = JOKES[Math.floor(Math.random() * JOKES.length)];
+    else if (/verse|bible|scripture|pray/i.test(text)) { const [v, r] = VERSES[Math.floor(Math.random() * VERSES.length)]; reply = `“${v}” — ${r}`; }
+    else if (/list|to-?do|today/i.test(text)) { const open = S.tasks.filter((t) => !t.done); reply = open.length ? "Here's your list: " + open.map((t) => t.text).join("; ") + "." : "Your to-do list is empty right now."; }
+    else reply = caps.ready ? "To have a real conversation, open Porchlight inside Claude. I can still tell you a joke, share a verse, or read your to-do list." : "One moment, I'm still getting ready. Try again in a few seconds.";
+    p.textContent = reply; bubble.append(speakBtn(reply));
+    chatTurns.push({ role: "assistant", content: reply }); lsSet(LS_KEY + ".chat", chatTurns.slice(-30));
+    return;
+  }
+  chatBusy = true;
+  chatCtl = new AbortController();
+  const stop = h("button", { class: "btn btn-quiet", type: "button", onclick: () => chatCtl && chatCtl.abort() }, "Stop");
+  status.replaceChildren(stop);
+  const turns = [{ role: "user", content: chatRules() }].concat(chatTurns.slice(-16));
+  const opts = { modelTier: "quick", signal: chatCtl.signal, onText: ({ text }) => { p.textContent = text; } };
+  const lim = await caps.sample.limits().catch(() => null);
+  if (lim && lim.tools) {
+    opts.tools = [{
+      name: "add_to_do",
+      description: "Adds one item to the person's to-do list in the app. Use when they ask you to remind them of something or add a task. Returns a confirmation.",
+      inputSchema: { type: "object", properties: { text: { type: "string", description: "The item, short and clear, like 'Call Sarah about Sunday dinner'" } }, required: ["text"] },
+      execute: (inp) => { const t = addTask(String(inp.text || "")); if (!t) throw new Error("Nothing to add"); return "Added: " + t.text; },
+    }];
+  } else opts.cache = false;
+  try {
+    const { text: out } = await caps.sample(turns, opts);
+    p.textContent = out.trim();
+    bubble.append(speakBtn(out.trim()));
+    chatTurns.push({ role: "assistant", content: out.trim() });
+  } catch (e) {
+    const c = sampleCopy(e);
+    p.textContent = e.text ? e.text + (c ? "\n\n(" + c + ")" : "") : c || "(Stopped.)";
+    if (e.text) chatTurns.push({ role: "assistant", content: e.text });
+    else chatTurns.pop();
+  } finally {
+    chatBusy = false; status.replaceChildren();
+    lsSet(LS_KEY + ".chat", chatTurns.slice(-30));
+    renderNav();
+  }
+}
+
+/* family board (shared db collection "family") */
+let familyUnsub = null;
+function subscribeFamily(db) {
+  if (familyUnsub) return;
+  family.status = "loading";
+  familyUnsub = db.collection("family").orderBy("at", "desc").limit(50).onSnapshot(async (snap) => {
+    family.posts = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+    family.status = "ready";
+    const ids = [...new Set(family.posts.map((p) => p.by).filter(Boolean))];
+    if (caps.user && ids.length) family.profiles = await caps.user.profiles(ids);
+    if (ui.view === "messages" || ui.view === "home") render();
+  }, (e) => { family.status = "error"; family.error = e.code === "revoked" ? "This board isn't available right now." : "I couldn't load family notes."; if (ui.view === "messages") render(); });
+}
+function viewFamily() {
+  if (!caps.db) {
+    return [helperSays(caps.ready ? "Family notes work when you open Porchlight inside Claude. Then tap Share at the top of the page and invite your family. They'll be able to leave you notes here." : "One moment, I'm still getting ready.")];
+  }
+  const input = h("textarea", { class: "input", id: "f-post", placeholder: "Write a note to your family", rows: 3 });
+  const status = h("div");
+  const postBtn = h("button", { class: "btn btn-primary btn-big", type: "button" }, "Post my note");
+  postBtn.onclick = async () => {
+    const text = input.value.trim();
+    if (!text) { toast("Please write your note first."); return; }
+    if (!caps.uid) { status.replaceChildren(h("div", { class: "note" }, "Please sign in to Claude to post a note.")); return; }
+    postBtn.disabled = true;
+    try {
+      await caps.db.collection("family").add({ by: caps.uid, text: text.slice(0, 1000), at: Date.now() });
+      input.value = ""; toast("Posted!");
+    } catch (e) {
+      status.replaceChildren(h("div", { class: "note" }, e.code === "invalid_argument" ? "You can read notes here, but you don't have permission to post. Ask the owner to give you Contributor access." : e.code === "quota_exceeded" ? "The board is full. Ask the owner to remove some old notes." : "I couldn't post that. Please try again."));
+    } finally { postBtn.disabled = false; }
+  };
+  const posts = family.posts.map((p) => {
+    const prof = family.profiles[p.by] || {};
+    const isMe = p.by === caps.uid;
+    return h("article", { class: "post" },
+      h("div", { class: "who" }, prof.avatarUrl ? h("img", { src: prof.avatarUrl, alt: "" }) : null, h("span", null, isMe ? "You" : prof.name || "Someone"), h("span", { class: "muted small" }, new Date(p.at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }))),
+      h("div", { class: "body" }, String(p.text || "")),
+      h("div", { class: "row" }, speakBtn(`${isMe ? "You" : prof.name || "Someone"} wrote: ${p.text}`, "Read it to me"),
+        isMe ? h("button", { class: "del btn btn-quiet", type: "button", onclick: () => caps.db.doc("family/" + p.id).delete().catch(() => toast("I couldn't remove that.")) }, "Remove") : null));
+  });
+  return [
+    h("div", { class: "card" }, h("div", { class: "field" }, h("label", { for: "f-post" }, "New note"), input), postBtn, status),
+    family.status === "error" ? h("div", { class: "note" }, family.error) : null,
+    posts.length ? h("div", { class: "list" }, posts) : helperSays("No notes yet. Invite family with the Share button at the top of this page in Claude, then leave the first note!"),
+  ];
+}
+
+/* ================================================================
+   MY SETUP
+================================================================ */
+let confirmErase = false;
+function viewSettings() {
+  const conn = (ok, label) => h("li", null, h("b", null, label + ": "), ok);
+  const out = [
+    h("div", { class: "hello" }, h("h1", null, "My Setup")),
+    h("div", { class: "card" },
+      h("h2", null, `${P().name}'s helper, ${P().helper}`),
+      h("p", null, "Want to change what I help with, your email, or your favorite websites? I'll ask the questions again with your answers already filled in."),
+      h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => { ui.step = 1; go("setup"); } }, "Answer the setup questions again")),
+    h("div", { class: "card" },
+      h("h2", null, "Word size"),
+      h("div", { class: "sizes" }, [1, 2, 3].map((n) => h("button", { class: "choice", type: "button", "aria-pressed": P().textSize === n ? "true" : "false", onclick: () => { P().textSize = n; applyTextSize(); save(); render(); } }, h("span", { style: `font-size:${[0, 1.1, 1.35, 1.6][n]}rem` }, "Aa"), h("span", null, ["", "Big", "Bigger", "Biggest"][n]))))),
+    h("div", { class: "card" },
+      h("h2", null, "Connections"),
+      h("ul", { class: "list" },
+        conn(caps.mcp ? (P().gmailOk ? "Connected" : "Not checked yet") : "Only inside Claude", "Gmail"),
+        conn(caps.mcp ? (P().calOk ? "Connected" : "Not checked yet") : "Only inside Claude", "Google Calendar"),
+        conn(canAsk() ? "Ready" : caps.sampleOff ? "Turned off" : "Only inside Claude", "Smart help from Claude"),
+        conn(docRef ? "Saved to your Claude account" : "Saved on this device only", "Your answers and list")),
+      h("button", { class: "btn btn-quiet", type: "button", onclick: managePermissions }, "Change what Porchlight may use")),
+    h("div", { class: "card" },
+      h("h2", null, "Start fresh"),
+      h("p", null, "This erases your answers, your to-do list, and our conversation. Your email and calendar are not touched."),
+      confirmErase
+        ? h("div", { class: "row" },
+            h("button", { class: "btn btn-danger", type: "button", onclick: eraseAll }, "Yes, erase everything"),
+            h("button", { class: "btn btn-quiet", type: "button", onclick: () => { confirmErase = false; render(); } }, "No, keep it"))
+        : h("button", { class: "btn btn-quiet", type: "button", onclick: () => { confirmErase = true; render(); } }, "Erase my information")),
+  ];
+  return out;
+}
+async function managePermissions() {
+  try {
+    const perms = await use("permissions");
+    if (perms && perms.manage) { await perms.manage(); return; }
+    else { toast("Open the Permissions menu at the top of this page in Claude."); return; }
+  } catch {}
+  toast("Open the Permissions menu at the top of this page in Claude.");
+}
+async function eraseAll() {
+  confirmErase = false;
+  S = freshState(); chatTurns = [];
+  try { localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_KEY + ".chat"); } catch {}
+  if (docRef) { const ref = docRef; writeChain = writeChain.then(() => ref.delete()).catch(() => {}); }
+  mail.status = "idle"; mail.items = []; cal.status = "idle";
+  applyTextSize(); ui.step = 0; go("setup");
+}
+
+/* ================================================================
+   HELP
+================================================================ */
+const HELP = {
+  setup: "I'm asking you a few questions so I can set things up. Answer each one, then tap the big blue button at the bottom. Tap Back to change an answer. You can change everything later in My Setup.",
+  home: "This is your Home page. It shows the things you asked me to help with. Tap any big button to open it. The buttons along the bottom take you to your Mail, your To-Do list, a place to Talk with me, and My Setup.",
+  mail: "Tap Go through my mail and I'll sort your newest emails. Red ones need your answer. Orange ones might be scams, so don't click links in them. Blue ones are good to know. Gray ones can wait. Tap Read it to open an email. Nothing is ever sent unless you tap Send and then Yes.",
+  todo: "Type something you want to remember and tap Add to my list. When you finish it, tap the square box next to it. You can also ask me on the Talk page to add things for you.",
+  messages: "Type a message in the box and tap Send. Ask me anything, or paste a text message you got and I'll tell you if it looks like a scam. Family notes is a board your invited family can write on too.",
+  settings: "Here you can redo the setup questions, make the words bigger, and see what's connected.",
+};
+function openHelp() {
+  const text = HELP[ui.view] || HELP.home;
+  openSheet([
+    h("div", { class: "card-head" }, h("h2", null, "Help"), h("button", { class: "btn btn-quiet", type: "button", onclick: closeSheet }, "Close")),
+    helperSays(text),
+    h("div", { class: "card" }, h("h3", null, "Staying safe"), h("p", null, "I will never ask for your passwords, PINs, bank numbers, or Social Security number. If an email or text asks for these, it's almost always a scam. When in doubt, call a family member or the company's real phone number.")),
+    ui.view !== "messages" && ui.view !== "setup" ? h("button", { class: "btn btn-primary btn-big", type: "button", onclick: () => { closeSheet(); ui.msgTab = "chat"; go("messages"); } }, `Ask ${P().helper} a question`) : null,
+  ]);
+}
+
+boot();
+</script>
+
+</body></html>
