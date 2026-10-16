@@ -1,6 +1,6 @@
 # Steward
 
-A rules-based, paper-trading-first investment system for a $20,000 account.
+A rules-based, paper-trading-first investment system for a $25,000 account.
 It reads the world economy once a week, sets target holdings from two
 well-documented strategies, caps stock exposure when recession signs stack
 up, enforces stop-losses and a drawdown circuit breaker, and sends a weekly
@@ -12,7 +12,7 @@ check-in as a GitHub issue (which arrives as an email).
 ## Goal, stated honestly
 
 Doubling every six months compounds to about **+300% a year**, which would turn
-$20,000 into about $20 million in five years. No public strategy, fund or
+$25,000 into about $25 million in five years. No public strategy, fund or
 investor has done that repeatably. For comparison, Warren Buffett has
 compounded at roughly 20% a year, and Renaissance's closed Medallion fund at
 roughly 66% before fees. Steward's job is to **grow steadily and avoid the
@@ -56,7 +56,7 @@ hard-wired to the paper endpoint and refuses anything else.
 Setup (about five minutes):
 
 1. Open a paper-only account at [alpaca.markets](https://alpaca.markets) and
-   set its balance to $20,000 (paper dashboard, "Reset").
+   set its balance to $25,000 (paper dashboard, "Reset").
 2. In the paper dashboard, generate an API key and secret.
 3. In this repo: Settings, Secrets and variables, Actions. Add
    `ALPACA_API_KEY` and `ALPACA_SECRET_KEY`.
