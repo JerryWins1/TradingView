@@ -78,6 +78,16 @@ report reads holdings from `paper/portfolio.json`.
 
 Locally: `python -m steward trade --dry-run` plans orders without sending.
 
+## The brain
+
+`brain/state.md` is the current picture of the economy and markets, so a
+new session starts from today instead of from research. `python -m steward
+brain` refreshes the data section (indicators, regime, trend, momentum,
+12-month returns) from FRED and price data and writes the same numbers to
+`brain/indicators.json`. The weekly workflow does this every Monday and
+commits the result. Everything between the NOTES markers is hand-kept: Fed
+commentary, upcoming dates, decisions and their reasons, open items.
+
 ## Validation checklist, before any real money
 
 1. Backtest: does Steward beat buy-and-hold SPY on risk (worst drop, worst

@@ -14,6 +14,7 @@ from .regime import FRED_SERIES, build_snapshot, classify, regime_history
 from .report import build_report, load_portfolio
 from .strategies import combine
 from . import trade as tr
+from . import brain as brain_mod
 from .broker import AlpacaPaper
 
 
@@ -127,12 +128,19 @@ def cmd_trade(rules: dict, args) -> None:
         tr.save_state(state)
 
 
+def cmd_brain(rules: dict, args) -> None:
+    b = brain_mod.refresh(rules, args.refresh)
+    print(f"Brain refreshed {b['updated']}: regime {b['regime']['name']} (cap {b['regime']['equity_cap']:.0%}); "
+          f"trend {'on' if b['markets']['trend']['above_10m_average'] else 'off'}, momentum pick {b['markets']['momentum']['pick']}")
+    print(f"Wrote {brain_mod.STATE_FILE} and {brain_mod.INDICATORS_FILE}")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="steward", description="Rules-based, paper-trading-first investing.")
     p.add_argument("--rules", help="Path to rules.toml")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("fetch", help="Download prices and economic data")
-    for name in ("regime", "backtest", "report", "trade"):
+    for name in ("regime", "backtest", "report", "trade", "brain"):
         sp = sub.add_parser(name)
         sp.add_argument("--refresh", action="store_true", help="Re-download data first")
     sub.choices["backtest"].add_argument("--start", default="2004-01-01")
@@ -141,7 +149,7 @@ def main(argv: list[str] | None = None) -> None:
     sub.choices["trade"].add_argument("--dry-run", action="store_true", help="Plan orders but send nothing")
     args = p.parse_args(argv)
     rules = load_rules(args.rules)
-    {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade}[args.cmd](rules, args)
+    {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain}[args.cmd](rules, args)
 
 
 if __name__ == "__main__":
