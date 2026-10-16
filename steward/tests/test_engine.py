@@ -98,3 +98,44 @@ def test_second_run_is_quiet_when_on_target(rules, monkeypatch, tmp_path):
     out = engine.run(rules, broker, core, mom, macro, date(2026, 10, 26), dry_run=False, paper_dir=tmp_path)
     assert out["orders"] == []
     assert len(pd.read_csv(tmp_path / "equity.csv")) == 8  # 4 rows per run
+
+
+def test_mirror_to_schwab_preview(rules, tmp_path):
+    orders = [
+        {"sleeve": "core", "symbol": "SPY", "side": "buy", "dollars": 4500, "qty": 0, "close": False, "status": "filled", "reason": "rebalance"},
+        {"sleeve": "core", "symbol": "EFA", "side": "sell", "dollars": 500, "qty": 5.5, "close": True, "status": "filled", "reason": "trailing stop"},
+        {"sleeve": "momentum", "symbol": "NVDA", "side": "buy", "dollars": 800, "qty": 0, "close": False, "status": "filled", "reason": "rebalance"},
+        {"sleeve": "core", "symbol": "AGG", "side": "sell", "dollars": 0, "qty": 0, "close": False, "status": "deferred: long-term in 20 days", "reason": "rebalance"},
+        {"sleeve": "core", "symbol": "AGG", "side": "buy", "dollars": 900, "qty": 0, "close": False, "status": "failed: insufficient buying power", "reason": "rebalance"},
+    ]
+    prices = {"SPY": 770.0, "EFA": 90.0, "NVDA": 200.0, "AGG": 100.0}
+    n = engine.mirror_to_schwab(rules, orders, prices, tmp_path)
+    assert n == 2  # momentum not mirrored; deferred and failed orders skipped
+    items = json.loads((tmp_path / "schwab_preview.json").read_text())
+    assert items[0]["order"]["orderType"] == "MARKET" and items[0]["order"]["orderStrategyType"] == "SINGLE"  # no native stop by default
+    assert items[0]["order"]["orderLegCollection"][0]["quantity"] == 5 and items[0]["note"] == "core: rebalance"
+    assert items[1]["order"]["orderLegCollection"][0] == {"instruction": "SELL", "quantity": 5, "instrument": {"symbol": "EFA", "assetType": "EQUITY"}}
+    assert "check quantity" in items[1]["note"]
+
+    attach = dict(rules) | {"schwab": dict(rules["schwab"]) | {"attach_trailing_stop": True}}
+    n = engine.mirror_to_schwab(attach, orders, prices, tmp_path)
+    assert n == 1  # the stop sell is left to the native stop
+    items = json.loads((tmp_path / "schwab_preview.json").read_text())
+    assert [i["status"] for i in items[:2]] == ["superseded", "superseded"]
+    assert items[2]["order"]["orderStrategyType"] == "TRIGGER"
+
+    none = dict(rules) | {"schwab": dict(rules["schwab"]) | {"mirror_sleeves": []}}
+    assert engine.mirror_to_schwab(none, orders, prices, tmp_path) == 0
+
+
+def test_live_run_saves_books_even_if_mirror_breaks(rules, monkeypatch, tmp_path):
+    core, mom, macro, broker = setup(rules, monkeypatch)
+    monkeypatch.setattr(engine, "FILL_WAIT_SECONDS", 0)
+
+    def boom(*a, **k):
+        raise RuntimeError("schwab down")
+
+    monkeypatch.setattr(engine, "mirror_to_schwab", boom)
+    out = engine.run(rules, broker, core, mom, macro, date(2026, 10, 19), dry_run=False, paper_dir=tmp_path)
+    assert out["schwab_preview"].startswith("skipped")
+    assert (tmp_path / "sleeves.json").exists() and (tmp_path / "equity.csv").exists() and (tmp_path / "prices.json").exists()

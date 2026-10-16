@@ -64,13 +64,23 @@ _Data section pending first automatic refresh (`python -m steward brain`). The h
 - IRA contribution limit 2026: $7,500, plus $1,100 catch-up at 50+. Roth phase-out: $153k to $168k single, $242k to $252k joint.
 - Wash sale: loss disallowed if the same security is bought within 30 days either side. Does not apply in an IRA.
 - Index options (SPX, XSP) are Section 1256: 60% long / 40% short regardless of holding period, no wash sales. SPY options are not. For real money the options sleeve should use XSP (one-tenth the size of SPX) instead of SPY.
-- Open question for Jerry: which account type will hold real money (taxable, traditional IRA, Roth IRA)? This decides how much of the tax layer matters.
+- 2026-10-16 ANSWERED: real money would sit in Jerry's existing **taxable** thinkorswim (Schwab) brokerage account. So the full tax layer applies: short-term gains at ordinary rates, wash sales, lot selection, long-term deferral. Recommendation on record: consider funding a Roth IRA at Schwab ($7,500/yr per person, $8,600 at 50+) for the most actively traded sleeve.
+
+### Platform decision (2026-10-16)
+
+- thinkorswim/Schwab = real-money home later (options tools, XSP, IRAs available). TradingView = optional charts only. Robinhood = skip.
+- Alpaca paper = the automated test lab (already wired).
+- Schwab Trader API, Individual tier, checked 2026-10-16: equities and single-leg options; live accounts only (no paperMoney); whole shares only; MARKET/LIMIT/STOP/STOP_LIMIT/TRAILING_STOP; TRIGGER (first-triggers-second) and OCO composites; refresh token dies after 7 days so a person logs in weekly; approval takes 1 to 3 business days. Unconfirmed: multi-leg option spreads in one order; exact trailing-stop fields. Both to be settled with a $1 test order.
+- Built: steward/schwab.py adapter in preview mode. Core-sleeve orders are mirrored to paper/schwab_preview.json as Schwab order bodies (whole shares, buys with trailing stops) for approve-then-send.
 
 ### Open items
 
 - Create the private `steward` GitHub repo (user), then move the code from the TradingView backup branch.
 - Open an Alpaca paper account, set to $25,000, add the two keys as repo secrets (user).
 - First real-data backtest once data can be fetched (GitHub Actions can; the build sandbox cannot).
+- Apply for Schwab developer access (user); then a $1 test order to confirm trailing stops and multi-leg support.
+- Fill in [tax] in rules.toml (user, privately).
+- Setup checklist for all of the above: docs/SETUP.md.
 
 ### Sources used on 2026-10-16
 

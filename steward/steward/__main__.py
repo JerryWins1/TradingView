@@ -185,12 +185,55 @@ def cmd_dashboard(rules: dict, args) -> None:
     print(f"Wrote {path}")
 
 
+def cmd_schwab(rules: dict, args) -> None:
+    """Weekly login, order preview from the latest plan, and approve-then-send."""
+    import json
+
+    from . import schwab
+
+    cfg = rules.get("schwab", {})
+    if args.action == "preview":
+        pending = [i for i in schwab.load_preview() if i["status"] == "preview"]
+        print(f"{len(pending)} order(s) awaiting approval in {schwab.PREVIEW_FILE}")
+        for i in pending:
+            print("  " + schwab.describe(i))
+        return
+    if args.action in ("login", "send") and not args.value:
+        raise SystemExit(f"steward schwab {args.action} needs a value: "
+                         + ("the URL you were redirected to" if args.action == "login" else "comma-separated preview ids"))
+    client = schwab.Schwab(live=cfg.get("live", False), callback_url=cfg.get("callback_url", "https://127.0.0.1:8182"),
+                           account_last4=str(cfg["account_last4"]) if cfg.get("account_last4") else None)
+    if args.action == "login-url":
+        print("Open this in a browser, approve, then run: steward schwab login <the URL you were redirected to>")
+        print(client.login_url())
+    elif args.action == "login":
+        tok = client.exchange_code(args.value)
+        print(f"Logged in. Refresh token good for {tok.refresh_days_left():.1f} days.")
+    elif args.action == "status":
+        tok = client._load_tokens()
+        print(f"Token OK, {tok.refresh_days_left():.1f} days until the weekly login is needed.")
+        a = client.account()
+        print(f"Account equity ${a['equity']:,.0f}, cash ${a['cash']:,.0f}, positions {a['positions']}")
+    elif args.action == "send":
+        sent = client.send_approved([x.strip() for x in args.value.split(",")])
+        print(f"Sent {len(sent)} order(s): {[x['id'] for x in sent]}")
+
+
+def cmd_review(rules: dict, args) -> None:
+    """Quarterly scorecard review: record who beat core and what the rules say."""
+    from datetime import date
+
+    from . import sleeves
+
+    print(sleeves.run_review(rules, date.today()))
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="steward", description="Rules-based, paper-trading-first investing.")
     p.add_argument("--rules", help="Path to rules.toml")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("fetch", help="Download prices and economic data")
-    for name in ("regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard", "tax"):
+    for name in ("regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard", "tax", "review"):
         sp = sub.add_parser(name)
         sp.add_argument("--refresh", action="store_true", help="Re-download data first")
     sub.choices["backtest"].add_argument("--start", default="2004-01-01")
@@ -198,10 +241,14 @@ def main(argv: list[str] | None = None) -> None:
     sub.choices["report"].add_argument("--out", help="Also write the report to this file")
     sub.choices["trade"].add_argument("--dry-run", action="store_true", help="Plan orders but send nothing")
     sub.choices["dashboard"].add_argument("--out", help="Write the dashboard HTML here (default docs/index.html)")
+    sw = sub.add_parser("schwab", help="Real-money path (preview mode by default)")
+    sw.add_argument("action", choices=["login-url", "login", "status", "preview", "send"])
+    sw.add_argument("value", nargs="?", help="Redirected URL for login; comma-separated preview ids for send")
     args = p.parse_args(argv)
     rules = load_rules(args.rules)
     {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain,
-     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard, "tax": cmd_tax}[args.cmd](rules, args)
+     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard, "tax": cmd_tax, "schwab": cmd_schwab,
+     "review": cmd_review}[args.cmd](rules, args)
 
 
 if __name__ == "__main__":

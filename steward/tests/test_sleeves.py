@@ -1,3 +1,4 @@
+import json
 from datetime import date, timedelta
 
 import numpy as np
@@ -102,3 +103,22 @@ def test_manage_spreads(rules):
     open_ = [{"id": "a", "credit": 1.0}, {"id": "b", "credit": 1.0}, {"id": "c", "credit": 1.0}]
     out = options.manage(open_, {"a": 0.45, "b": 2.2, "c": 1.0}, rules)
     assert [(sp["id"], why.split(":")[0]) for sp, why in out] == [("a", "take profit"), ("b", "stop")]
+
+
+def test_quarterly_review_records_history(rules, tmp_path):
+    eq = tmp_path / "eq.csv"
+    start = date(2026, 1, 5)
+    c, m, o = 15000.0, 5000.0, 5000.0
+    for i in range(30):
+        sleeves.record_equity({"core": c, "momentum": m, "options": o}, start + timedelta(weeks=i), eq)
+        wobble = 0.003 * (-1) ** i  # constant growth has zero volatility and an undefined Sharpe
+        c *= 1.004 + wobble; m *= 1.008 + wobble; o *= 0.999 + wobble
+    rev = tmp_path / "reviews.json"
+    assert "First review due" in sleeves.run_review(rules, start + timedelta(weeks=2), eq, rev)  # one week is not a quarter
+    assert not rev.exists()
+    out = sleeves.run_review(rules, start + timedelta(weeks=29), eq, rev)
+    assert "Quarterly review" in out and "need two" in out
+    hist = json.loads(rev.read_text())
+    assert hist[-1]["beats_core"] == {"momentum": True, "options": False}
+    # Too soon for another review
+    assert "Next review due" in sleeves.run_review(rules, start + timedelta(weeks=30), eq, rev)

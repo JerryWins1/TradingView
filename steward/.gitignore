@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 data/cache/
 reports/
+paper/schwab_token.json

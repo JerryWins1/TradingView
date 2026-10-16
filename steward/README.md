@@ -136,6 +136,20 @@ switches itself off. For real money, the options sleeve should trade XSP
 (index options, Section 1256 treatment) rather than SPY options. None of
 this is tax advice; confirm with a CPA.
 
+## Real money later: Schwab / thinkorswim adapter
+
+`steward/schwab.py` speaks Schwab's Trader API (equities, stops, trailing
+stops, first-triggers-second and OCO composites, whole shares) and starts in
+**preview mode**: the core sleeve's orders are written to
+`paper/schwab_preview.json` as ready-to-send Schwab orders, buys with a
+trailing stop attached. `python -m steward schwab preview` lists them;
+`python -m steward schwab send p1,p2` sends only the ones you name, and only
+when `[schwab] live = true`. Schwab's refresh token lasts 7 days, so the
+weekly check-in includes `python -m steward schwab login-url` and a browser
+login. The API has no paper mode, which is why Alpaca runs the test beds.
+
+See `docs/SETUP.md` for the one-time setup steps.
+
 ## The brain
 
 `brain/state.md` is the current picture of the economy and markets, so a

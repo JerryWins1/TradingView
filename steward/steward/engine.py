@@ -8,6 +8,7 @@ record the sleeve's value for the scorecard.
 from __future__ import annotations
 
 import json
+import os
 import time
 from datetime import date, timedelta
 from pathlib import Path
@@ -139,6 +140,11 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
         _save(paper_dir / "state.json", state_all)
         _save(paper_dir / "pending.json", pending)
         sleeves.record_equity(values, today, paper_dir / "equity.csv")
+        _save(paper_dir / "prices.json", prices)
+        try:  # after the books are saved; a problem here must not cost the run's bookkeeping
+            out["schwab_preview"] = mirror_to_schwab(rules, out["orders"], prices, paper_dir)
+        except Exception as e:
+            out["schwab_preview"] = f"skipped: {e}"
     return out
 
 
@@ -180,3 +186,54 @@ def run_options(rules: dict, broker, prices: dict, today: date, dry_run: bool, p
     if not dry_run:
         _save(paper_dir / "options_open.json", open_spreads)
     return result
+
+
+def mirror_to_schwab(rules: dict, orders: list[dict], prices: dict, paper_dir: Path) -> int:
+    """Write the sleeves' executed orders as Schwab order bodies for a person to approve later.
+
+    Whole shares only. Sells are sized from the paper ledger, so the note asks
+    the approver to check the quantity against real holdings. With
+    attach_trailing_stop = true each buy carries a native GTC trailing stop;
+    then Steward's own stop sells are skipped (the native stop covers them)
+    and rebalance sells carry a reminder to resize the open stop. Nothing is
+    sent: see steward/schwab.py.
+    """
+    cfg = rules.get("schwab", {})
+    mirror = cfg.get("mirror_sleeves", [])
+    if not mirror:
+        return 0
+    from . import schwab
+
+    attach = cfg.get("attach_trailing_stop", False)
+    bodies, notes = [], []
+    for o in orders:
+        if o["sleeve"] not in mirror or o["status"] not in ("filled", "partial", "submitted"):
+            continue
+        px = prices.get(o["symbol"], 0.0)
+        qty = int(o["qty"]) if o.get("close") else schwab.whole_shares(o["dollars"], px)
+        if qty < 1:
+            continue
+        note = f"{o['sleeve']}: {o['reason']}"
+        if o["side"] == "buy":
+            if attach:
+                trail = rules["risk"]["trailing_stop"] if o["sleeve"] == "core" else rules["momentum"]["trailing_stop"]
+                bodies.append(schwab.buy_with_stop(o["symbol"], qty, trail))
+            else:
+                bodies.append(schwab.market(o["symbol"], qty, "buy"))
+        else:
+            if attach and o["reason"].startswith("trailing stop"):
+                continue  # the native stop attached at purchase handles this exit
+            note += " | check quantity against Schwab holdings before approving"
+            if attach:
+                note += " | resize the open trailing stop to the remaining shares"
+            bodies.append(schwab.market(o["symbol"], qty, "sell"))
+        notes.append(note)
+    if bodies:
+        # One call so earlier items are superseded once, and these all stay live together.
+        items = schwab.preview(bodies, note="", path=paper_dir / "schwab_preview.json")
+        all_items = schwab.load_preview(paper_dir / "schwab_preview.json")
+        by_id = {it["id"]: it for it in all_items}
+        for it, note in zip(items, notes):
+            by_id[it["id"]]["note"] = note
+        schwab._save_preview(all_items, paper_dir / "schwab_preview.json")
+    return len(bodies)

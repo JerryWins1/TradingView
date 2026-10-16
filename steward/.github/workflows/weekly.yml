@@ -27,6 +27,8 @@ jobs:
     env:
       ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
       ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      SCHWAB_APP_KEY: ${{ secrets.SCHWAB_APP_KEY }}
+      SCHWAB_APP_SECRET: ${{ secrets.SCHWAB_APP_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,6 +41,7 @@ jobs:
       - name: Place paper orders
         if: env.ALPACA_API_KEY != ''
         run: python -m steward trade ${{ inputs.dry_run && '--dry-run' || '' }} | tee trade-output.txt
+      - run: python -m steward review | tee review-output.md
       - run: python -m steward dashboard
       - name: Save brain, dashboard, ledgers and trade logs
         run: |
@@ -59,4 +62,5 @@ jobs:
           if [ -f trade-output.txt ]; then
             { echo; echo '## Orders this run'; echo; echo '```'; cat trade-output.txt; echo '```'; } >> body.md
           fi
+          if [ -s review-output.md ]; then { echo; cat review-output.md; } >> body.md; fi
           gh issue create --title "Steward weekly check-in $(date +%Y-%m-%d)" --body-file body.md

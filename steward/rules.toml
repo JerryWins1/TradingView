@@ -100,3 +100,15 @@ lot_method = "hifo"        # Which shares to sell first: "hifo" (smallest gain) 
 defer_for_long_term = true # Hold a routine rebalance sell if the lot turns long-term soon
 defer_max_days = 45        # ...but only if long-term status is within this many days
 defer_max_drift = 0.10     # ...and the position is no more than 10 points off target
+
+# ---------------------------------------------------------------------------
+# Schwab / thinkorswim (the real-money path, later). Preview mode writes the
+# orders it would send to paper/schwab_preview.json; a person approves them.
+# Keys go in SCHWAB_APP_KEY / SCHWAB_APP_SECRET, never in this file.
+
+[schwab]
+live = false               # true only after a successful $1 test order and your say-so
+callback_url = "https://127.0.0.1:8182"
+mirror_sleeves = ["core"]  # Which sleeves' orders get mirrored into the preview file
+attach_trailing_stop = false  # true: each mirrored buy carries a native GTC trailing stop at Schwab
+# account_last4 = "1234"   # Required if the app can see more than one Schwab account

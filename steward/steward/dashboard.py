@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import sleeves
+from . import schwab, sleeves, tax
 from .brain import INDICATORS_FILE, NOTES_END, NOTES_START, STATE_FILE
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -160,6 +160,43 @@ def build(rules: dict, out: Path = OUTPUT, brain_file: Path = INDICATORS_FILE, s
         f"<td class='num'>{_money(float(t['dollars']))}</td><td>{_esc(t['status'])}</td><td class='muted'>{_esc(t['reason'])}</td></tr>"
         for t in recent_trades(trades_file)) or "<tr><td colspan='7' class='muted'>No orders yet.</td></tr>"
 
+    # Taxes (as if real money) and anything awaiting approval on the Schwab side.
+    today = pd.Timestamp.today().date()
+    all_lots = [l for sl in ledger.values() for l in tax.lots_from(sl)]
+    ledger_prices = {}
+    if brain and "markets" in brain:
+        ledger_prices = dict(brain["markets"].get("prices", {}))
+    prices_file = trades_file.parent / "prices.json"  # every symbol the engine priced last run
+    if prices_file.exists():
+        ledger_prices |= json.loads(prices_file.read_text())
+    tax_summary = tax.year_summary(trades_file.parent / "realized.csv", today.year)
+    open_lots = tax.unrealized(all_lots, ledger_prices, today, rules)
+    t = rules.get("tax", {})
+    if t.get("account_type", "taxable") != "taxable":
+        tax_html = f"<p class='sub'>Account type {_esc(t['account_type'])}: individual trades are not taxed.</p>"
+    else:
+        lot_rows = "".join(
+            f"<tr><td>{_esc(r['symbol'])} {r['qty']:g} @ {r['cost']:,.2f}</td><td class='num'>{r['days_held']}</td>"
+            f"<td class='num'>{r['gain']:+,.0f}</td><td class='num'>{_money(r['tax_if_sold_now'])}</td>"
+            f"<td class='num'>{'now' if r['long_term'] else str(r['days_to_long_term']) + 'd'}</td></tr>" for r in open_lots
+        ) or "<tr><td colspan='5' class='muted'>No open lots.</td></tr>"
+        tax_html = (f"<p class='sub'>Realized this year: short-term {tax_summary['short_term']:+,.0f}, long-term {tax_summary['long_term']:+,.0f}, "
+                    f"estimated tax {_money(tax_summary['est_tax'])}"
+                    + (f", <strong>{tax_summary['wash_sales']} wash-sale risk</strong>" if tax_summary['wash_sales'] else "")
+                    + f". Assumed rates: ordinary {t.get('ordinary_rate', 0.24):.0%}, long-term {t.get('long_term_rate', 0.15):.0%}.</p>"
+                    f"<table><thead><tr><th>Open lot</th><th class='num'>Days held</th><th class='num'>Gain</th><th class='num'>Tax if sold now</th><th class='num'>Long-term in</th></tr></thead><tbody>{lot_rows}</tbody></table>")
+
+    preview_file = trades_file.parent / "schwab_preview.json"
+    pending = []
+    if preview_file.exists():
+        pending = [i for i in json.loads(preview_file.read_text()) if i.get("status") == "preview"]
+    if pending:
+        rows = "".join(f"<tr><td>{_esc(schwab.describe(i).split('  (')[0])}</td><td class='muted'>{_esc(i.get('note', ''))}</td></tr>" for i in pending)
+        schwab_html = (f"<h2>Awaiting your approval (Schwab preview)</h2><div class='card'><table><thead><tr><th>Order</th><th>Why</th></tr></thead>"
+                       f"<tbody>{rows}</tbody></table><p class='sub'>Nothing is sent until you approve: <code>python -m steward schwab send id1,id2</code></p></div>")
+    else:
+        schwab_html = ""
+
     tiles_html = "".join(f"<div class='tile'><div class='lab'>{_esc(a)}</div><div class='val'>{_esc(b)}</div><div class='sub'>{_esc(c)}</div></div>"
                          for a, b, c in tiles)
     paper_note = "Paper money only. Educational tool, not financial advice."
@@ -201,6 +238,8 @@ footer{{margin-top:32px;font-size:12px;color:var(--muted)}}
 <h2>Scorecard</h2><div class="card"><table><thead><tr><th>Sleeve</th><th class="num">Weeks</th><th class="num">Return</th><th class="num">Worst drop</th><th class="num">Sharpe</th><th class="num">vs core</th></tr></thead><tbody>{score_rows}</tbody></table>
 <p class="sub">Reviews every {rules['scorecard']['review_every_days']} days. Two straight reviews beating core on risk-adjusted return earn +{rules['scorecard']['promote_step']:.0%} capital; two straight misses lose {rules['scorecard']['demote_step']:.0%}. No experimental sleeve above {rules['scorecard']['max_experimental_share']:.0%} of the account.</p></div>
 <h2>Recent orders</h2><div class="card"><table><thead><tr><th>Date</th><th>Sleeve</th><th>Side</th><th>Symbol</th><th class="num">Amount</th><th>Status</th><th>Reason</th></tr></thead><tbody>{trade_rows}</tbody></table></div>
+{schwab_html}
+<h2>Taxes, as if this were real money</h2><div class="card">{tax_html}</div>
 <h2>Notes, dates and decisions</h2><div class="card notes">{notes_html(state_text) or "<p class='muted'>No notes yet.</p>"}</div>
 <footer>{paper_note} Rules live in rules.toml; every order is logged with its reason.</footer>
 </main></body></html>

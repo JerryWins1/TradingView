@@ -155,3 +155,36 @@ def scorecard_markdown(scores: list[Score], rules: dict, verdicts: dict[str, str
 
 def beats_core(s: Score, core: Score) -> bool:
     return s.sharpe > core.sharpe and s.max_drawdown >= core.max_drawdown
+
+
+REVIEWS_FILE = PAPER_DIR / "reviews.json"
+
+
+def run_review(rules: dict, today: date, equity_file: Path = EQUITY_FILE, reviews_file: Path = REVIEWS_FILE) -> str:
+    """Score each sleeve since the last review, append the verdicts, and say what the rules call for.
+
+    Capital changes are recommended here, not applied: a person edits [sleeves] in rules.toml.
+    """
+    history = json.loads(reviews_file.read_text()) if reviews_file.exists() else []
+    every = rules["scorecard"]["review_every_days"]
+    if history:
+        last = pd.Timestamp(history[-1]["date"])
+        if (pd.Timestamp(today) - last).days < every:
+            return f"_Next review due {(last + pd.Timedelta(days=every)).date()}; last was {last.date()}._"
+        since = last
+    else:
+        since = None
+    eq = load_equity(equity_file)
+    if eq.empty or (pd.Timestamp(today) - eq.index[0]).days < every:
+        first_due = (eq.index[0] + pd.Timedelta(days=every)).date() if not eq.empty else "after the first weekly run"
+        return f"_First review due {first_due}: a review needs a full {every} days of history._"
+    scores = {s.sleeve: s for s in score(eq, since)}
+    if "core" not in scores:
+        return "_Not enough history for a review yet._"
+    beats = {name: beats_core(s, scores["core"]) for name, s in scores.items() if name != "core"}
+    history.append({"date": today.isoformat(), "beats_core": beats,
+                    "scores": {n: s.__dict__ for n, s in scores.items()}})
+    reviews_file.parent.mkdir(parents=True, exist_ok=True)
+    reviews_file.write_text(json.dumps(history, indent=2) + "\n")
+    verdicts = {name: review_verdict(name, [h["beats_core"].get(name, False) for h in history], rules) for name in scores}
+    return f"## Quarterly review {today.isoformat()}\n\n" + scorecard_markdown(list(scores.values()), rules, verdicts)
