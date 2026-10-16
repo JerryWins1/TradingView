@@ -87,6 +87,9 @@ def build_report(
     if not held:
         lines.append("- No open positions.")
     for t, shares in held.items():
+        if t not in prices:
+            lines.append(f"- {t}: {shares:g} sh, no price history here (another sleeve's holding); stops are checked by the engine")
+            continue
         high = float(prices[t].iloc[-STOP_LOOKBACK_DAYS:].max())
         stop = high * (1 - trail)
         price = float(last[t])

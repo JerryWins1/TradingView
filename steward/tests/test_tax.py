@@ -89,3 +89,15 @@ def test_recent_buys_from_trade_log(tmp_path):
     f.write_text("date,symbol,side,dollars,reason,close,qty,order_id,status\n"
                  "2026-10-01,SPY,buy,100,r,False,0,a,filled\n2026-08-01,EFA,buy,100,r,False,0,b,filled\n2026-10-10,AGG,sell,100,r,False,0,c,filled\n")
     assert tax.recent_buy_symbols(f, TODAY) == {"SPY"}
+
+
+def test_deferral_looks_at_the_lots_that_would_sell(rules):
+    # HIFO sells the 120-cost lot (bought 350 days ago) first; the fresh 100-cost lot is not touched.
+    lots = [lot("SPY", 100, 120, 350), lot("SPY", 5, 100, 7)]
+    orders = [Order("2026-10-19", "SPY", "sell", 2600, "rebalance to 30% (held 35%)")]  # ~20 shares at 130
+    out = tax.defer_rebalance_sells(orders, lots, {"SPY": 130}, 100000, rules, TODAY)
+    assert out[0].status.startswith("deferred") and "16 days" in out[0].status
+    # FIFO would sell the old lot too; a sale big enough to reach the fresh lot still defers on the old lot's clock.
+    fifo = dict(rules) | {"tax": dict(rules["tax"]) | {"lot_method": "fifo"}}
+    out = tax.defer_rebalance_sells([Order("d", "SPY", "sell", 2600, "rebalance")], lots, {"SPY": 130}, 100000, fifo, TODAY)
+    assert out[0].status.startswith("deferred")

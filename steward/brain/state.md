@@ -73,6 +73,14 @@ _Data section pending first automatic refresh (`python -m steward brain`). The h
 - Schwab Trader API, Individual tier, checked 2026-10-16: equities and single-leg options; live accounts only (no paperMoney); whole shares only; MARKET/LIMIT/STOP/STOP_LIMIT/TRAILING_STOP; TRIGGER (first-triggers-second) and OCO composites; refresh token dies after 7 days so a person logs in weekly; approval takes 1 to 3 business days. Unconfirmed: multi-leg option spreads in one order; exact trailing-stop fields. Both to be settled with a $1 test order.
 - Built: steward/schwab.py adapter in preview mode. Core-sleeve orders are mirrored to paper/schwab_preview.json as Schwab order bodies (whole shares, buys with trailing stops) for approve-then-send.
 
+### Build log, 2026-10-16 (autonomous session while Jerry was offline)
+
+- Two full code reviews run; 28 findings fixed. Notable: a CLI handler had been lost in an edit (every command would have crashed in the workflow); partial fills were booked twice; sent Schwab orders could have been re-sent after a later failure. All fixed with regression tests. 75 tests pass.
+- Monthly signals now use the last completed month-end all month (matches the backtest; no mid-month flip-flopping).
+- Dual momentum now measures U.S. stocks against the 3-month T-bill yield (DGS3MO), not 0%, in both the engine and the backtest. Brain and engine agree.
+- Tax deferral now considers the lots that would actually be sold under the chosen lot method.
+- Momentum ranking skips any stock whose price file is more than 7 days stale.
+
 ### Open items
 
 - Create the private `steward` GitHub repo (user), then move the code from the TradingView backup branch.

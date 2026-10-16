@@ -25,7 +25,6 @@ NOTES_END = "<!-- NOTES:END -->"
 
 EXTRA_FRED = {
     "core_cpi": "CPILFESL",
-    "tbill_3m": "DGS3MO",
     "treasury_10y": "DGS10",
 }
 
@@ -55,7 +54,7 @@ def gather(rules: dict, refresh: bool = False) -> dict:
     sma = m[u["us_equity"]].rolling(s["trend_months"]).mean().iloc[-1]
     last = prices.iloc[-1]
     ret_12m = {t: float(prices[t].iloc[-1] / prices[t].iloc[-252] - 1) for t in tickers}
-    cash_yield = _last(extra["tbill_3m"])[0] / 100
+    cash_yield = _last(macro["tbill_3m"])[0] / 100
 
     us_beats_cash = ret_12m[u["us_equity"]] > cash_yield
     momentum_pick = (
@@ -76,7 +75,7 @@ def gather(rules: dict, refresh: bool = False) -> dict:
             "cpi_yoy": {"value": snap.cpi_yoy, "asof": _last(macro["cpi"])[1], "unit": "fraction"},
             "core_cpi_yoy": {"value": _yoy(extra["core_cpi"]), "asof": _last(extra["core_cpi"])[1], "unit": "fraction"},
             "fed_funds": {"value": _last(macro["fed_funds"])[0], "change_6m": snap.fed_change_6m, "asof": _last(macro["fed_funds"])[1], "unit": "pct"},
-            "tbill_3m": {"value": _last(extra["tbill_3m"])[0], "asof": _last(extra["tbill_3m"])[1], "unit": "pct"},
+            "tbill_3m": {"value": _last(macro["tbill_3m"])[0], "asof": _last(macro["tbill_3m"])[1], "unit": "pct"},
             "treasury_10y": {"value": _last(extra["treasury_10y"])[0], "asof": _last(extra["treasury_10y"])[1], "unit": "pct"},
         },
         "markets": {

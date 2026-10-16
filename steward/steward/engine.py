@@ -42,12 +42,28 @@ def momentum_prices(rules: dict, refresh: bool = False) -> pd.DataFrame:
     return frame.sort_index()
 
 
-def core_target(rules: dict, prices: pd.DataFrame, macro: dict) -> tuple[object, object, pd.Series]:
+def signal_prices(prices: pd.DataFrame, today: date | None = None) -> pd.DataFrame:
+    """Prices up to the last completed month-end, so a monthly signal is the
+    same all month (as in the backtest) instead of flickering with mid-month closes."""
+    today = today or (prices.index[-1].date() if len(prices) else date.today())
+    first_of_month = pd.Timestamp(today.replace(day=1))
+    return prices[prices.index < first_of_month]
+
+
+def cash_yield(macro: dict) -> float:
+    """Latest 3-month T-bill yield as a fraction, the hurdle U.S. stocks must beat in dual momentum."""
+    s = macro.get("tbill_3m")
+    return float(s.dropna().iloc[-1]) / 100 if s is not None and s.notna().any() else 0.0
+
+
+def core_target(rules: dict, prices: pd.DataFrame, macro: dict, today: date | None = None,
+                cash_yield: float = 0.0) -> tuple[object, object, pd.Series]:
     snap = build_snapshot(macro)
     regime = classify(snap, rules["regime"]["exposure_caps"])
-    targets = combine(rules, prices)
+    hist = signal_prices(prices, today)
+    targets = combine(rules, hist, cash_yield=cash_yield)
     caps = pd.Series(regime.exposure_cap, index=targets.index[-1:])
-    return snap, regime, combine(rules, prices, caps).iloc[-1]
+    return snap, regime, combine(rules, hist, caps, cash_yield=cash_yield).iloc[-1]
 
 
 def _book(ledger: dict, sleeve_name: str, symbol: str, side: str, qty: float, price: float, today: date,
@@ -58,15 +74,26 @@ def _book(ledger: dict, sleeve_name: str, symbol: str, side: str, qty: float, pr
         realized += tax.realize(sleeve_name, taken, price, today, rules, recent_buys)
 
 
+TERMINAL = ("filled", "canceled", "expired", "rejected", "replaced")
+
+
+def _book_delta(broker, oid: str, meta: dict, ledger: dict, today: date, rules: dict, recent_buys: set[str], realized: list) -> dict:
+    """Book only the shares filled since we last looked. Alpaca's filled_qty is cumulative."""
+    got = broker.get_order(oid)
+    filled = float(got.get("filled_qty") or 0)
+    new = filled - meta.get("booked", 0.0)
+    if new > 1e-9:
+        _book(ledger, meta["sleeve"], meta["symbol"], meta["side"], new, float(got["filled_avg_price"]), today, rules, recent_buys, realized)
+        meta["booked"] = filled
+    return got
+
+
 def book_pending(broker, ledger: dict, pending: dict, today: date, rules: dict, recent_buys: set[str], realized: list) -> dict:
-    """Book fills for orders submitted last run; keep the ones still open."""
+    """Book fills for orders still open from last run; keep the ones still open."""
     still = {}
     for oid, meta in pending.items():
-        o = broker.get_order(oid)
-        qty = float(o.get("filled_qty") or 0)
-        if qty > 0:
-            _book(ledger, meta["sleeve"], meta["symbol"], meta["side"], qty, float(o["filled_avg_price"]), today, rules, recent_buys, realized)
-        if o.get("status") not in ("filled", "canceled", "expired", "rejected", "replaced"):
+        got = _book_delta(broker, oid, meta, ledger, today, rules, recent_buys, realized)
+        if got.get("status") not in TERMINAL:
             still[oid] = meta
     return still
 
@@ -76,13 +103,16 @@ def book_orders(broker, orders: list[tr.Order], sleeve_name: str, ledger: dict, 
     for o in orders:
         if o.status != "submitted":
             continue
-        got = broker.get_order(o.order_id)
-        qty = float(got.get("filled_qty") or 0)
-        if qty > 0:
-            _book(ledger, sleeve_name, o.symbol, o.side, qty, float(got["filled_avg_price"]), today, rules, recent_buys, realized)
-            o.status = "filled" if got.get("status") == "filled" else "partial"
-        if got.get("status") != "filled":
-            pending[o.order_id] = {"sleeve": sleeve_name, "symbol": o.symbol, "side": o.side}
+        meta = {"sleeve": sleeve_name, "symbol": o.symbol, "side": o.side, "booked": 0.0}
+        got = _book_delta(broker, o.order_id, meta, ledger, today, rules, recent_buys, realized)
+        status = got.get("status", "")
+        if status == "filled":
+            o.status = "filled"
+        elif status in TERMINAL:
+            o.status = f"{status}" + (" after partial fill" if meta["booked"] > 0 else "")
+        else:
+            o.status = "partial" if meta["booked"] > 0 else "open"
+            pending[o.order_id] = meta  # still working at the broker; book the rest next run
 
 
 def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame, macro: dict,
@@ -99,16 +129,17 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
         pending = book_pending(broker, ledger, pending, today, rules, recent_buys, realized)
 
     # Prices: broker's live price for anything held, else last cached close.
-    live = {p.symbol: p.current_price for p in broker.positions()}
+    broker_positions = broker.positions()
+    live = {p.symbol: p.current_price for p in broker_positions}
     prices = {t: float(core_prices[t].iloc[-1]) for t in core_prices.columns if t != CASH}
     prices |= {t: float(mom_prices[t].dropna().iloc[-1]) for t in mom_prices.columns if t != CASH and mom_prices[t].notna().any()}
     prices |= live
 
-    snap, regime, core_t = core_target(rules, core_prices, macro)
+    snap, regime, core_t = core_target(rules, core_prices, macro, today, cash_yield(macro))
     out["regime"] = {"name": regime.name, "cap": regime.exposure_cap}
     plans = {
         "core": (core_t, core_prices, rules),
-        "momentum": (momentum.target_weights(mom_prices, rules), mom_prices, momentum.sleeve_rules(rules)),
+        "momentum": (momentum.target_weights(signal_prices(mom_prices, today), rules), mom_prices, momentum.sleeve_rules(rules)),
     }
 
     for name, (target, px_frame, sleeve_rules) in plans.items():
@@ -128,7 +159,7 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
         if not dry_run:
             tr.append_trades(orders, paper_dir / "trades.csv")
 
-    out["options"] = run_options(rules, broker, prices, today, dry_run, paper_dir)
+    out["options"] = run_options(rules, broker, prices, today, dry_run, paper_dir, broker_positions)
 
     values = {name: sleeves.sleeve_value(sl, prices) for name, sl in ledger.items()}
     values["total"] = sum(values.values())
@@ -148,13 +179,14 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
     return out
 
 
-def run_options(rules: dict, broker, prices: dict, today: date, dry_run: bool, paper_dir: Path) -> dict:
+def run_options(rules: dict, broker, prices: dict, today: date, dry_run: bool, paper_dir: Path,
+                broker_positions: list | None = None) -> dict:
     o = rules["options"]
     open_spreads = _json(paper_dir / "options_open.json", [])
     result = {"mode": o["mode"], "open": len(open_spreads), "closed": [], "new": None}
 
-    # Manage what is open using the broker's marks on each leg.
-    legs = {p.symbol: p.current_price for p in broker.positions()}
+    # Manage what is open using the broker's marks on each leg (same snapshot as the sleeve pricing).
+    legs = {p.symbol: p.current_price for p in (broker_positions if broker_positions is not None else broker.positions())}
     marks = {}
     for sp in open_spreads:
         if sp["short_put"] in legs and sp["long_put"] in legs:

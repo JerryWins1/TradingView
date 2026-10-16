@@ -18,11 +18,12 @@ FRED_SERIES = {
     "unrate": "UNRATE",         # Unemployment rate
     "cpi": "CPIAUCSL",          # Consumer prices (for year-over-year inflation)
     "fed_funds": "FEDFUNDS",    # Effective fed funds rate, monthly average
+    "tbill_3m": "DGS3MO",       # 3-month T-bill yield: the cash hurdle for dual momentum (not a regime input)
 }
 
 # Days between an observation's date and when it is public, so backtests
 # never use numbers that were not yet released.
-PUBLICATION_LAG_DAYS = {"curve": 1, "hy_spread": 1, "claims": 5, "unrate": 35, "cpi": 45, "fed_funds": 32}
+PUBLICATION_LAG_DAYS = {"curve": 1, "hy_spread": 1, "claims": 5, "unrate": 35, "cpi": 45, "fed_funds": 32, "tbill_3m": 1}
 
 SAHM_TRIGGER = 0.5
 HY_STRESS_LEVEL = 6.0

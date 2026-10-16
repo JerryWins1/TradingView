@@ -1,4 +1,4 @@
-"""Command line: python -m steward {fetch,regime,backtest,report}."""
+"""Command line: python -m steward <command>. See SUBCOMMANDS at the bottom."""
 
 from __future__ import annotations
 
@@ -13,7 +13,6 @@ from .data import load_fred, load_prices
 from .regime import FRED_SERIES, build_snapshot, classify, regime_history
 from .report import build_report, load_portfolio
 from .strategies import combine
-from . import trade as tr
 from . import brain as brain_mod
 from .broker import AlpacaPaper
 
@@ -44,11 +43,13 @@ def cmd_regime(rules: dict, args) -> None:
 def cmd_backtest(rules: dict, args) -> None:
     prices = load_prices(_tickers(rules), refresh=args.refresh)
     prices = prices[prices.index >= pd.Timestamp(args.start)]
+    macro = _macro(args.refresh)
+    hurdle = macro["tbill_3m"].dropna() / 100 if "tbill_3m" in macro else 0.0
     caps = None
     if not args.no_regime:
-        targets_raw = combine(rules, prices)
-        caps = regime_history(_macro(args.refresh), targets_raw.index, rules["regime"]["exposure_caps"])
-    targets = combine(rules, prices, caps)
+        targets_raw = combine(rules, prices, cash_yield=hurdle)
+        caps = regime_history(macro, targets_raw.index, rules["regime"]["exposure_caps"])
+    targets = combine(rules, prices, caps, cash_yield=hurdle)
     risk = rules["risk"]
     initial = rules["account"]["starting_capital"]
     result = bt.run_backtest(prices, targets, initial, risk["cost_bps"], risk["max_drawdown"])
@@ -73,16 +74,23 @@ def cmd_backtest(rules: dict, args) -> None:
     print(f"\nCircuit-breaker trips: {m['breaker_trips']}")
 
 
-def _today_target(rules: dict, prices: pd.DataFrame, macro: dict):
-    snap = build_snapshot(macro)
-    regime = classify(snap, rules["regime"]["exposure_caps"])
-    targets = combine(rules, prices)
-    caps = pd.Series(regime.exposure_cap, index=targets.index[-1:])
-    return snap, regime, combine(rules, prices, caps).iloc[-1]
-
-
 def _portfolio(rules: dict) -> dict:
-    """Live paper account when Alpaca keys are set, else paper/portfolio.json."""
+    """What the core sleeve holds, for the report's target-vs-current table.
+
+    With sleeve ledgers (the engine has run) that is the core sleeve's own
+    ledger, priced from the engine's last prices; otherwise the live paper
+    account if keys are set, else paper/portfolio.json.
+    """
+    from . import engine, sleeves
+
+    ledger_file = sleeves.LEDGER_FILE
+    if ledger_file.exists():
+        core = sleeves.load_ledger(rules, ledger_file)["core"]
+        prices_file = engine.PAPER_DIR / "prices.json"
+        import json
+
+        prices = json.loads(prices_file.read_text()) if prices_file.exists() else {}
+        return {"cash": core["cash"], "positions": dict(core["positions"]), "prices": prices}
     if AlpacaPaper.configured():
         b = AlpacaPaper()
         pos = b.positions()
@@ -95,8 +103,11 @@ def _portfolio(rules: dict) -> dict:
 
 
 def cmd_report(rules: dict, args) -> None:
+    from . import engine
+
     prices = load_prices(_tickers(rules), refresh=args.refresh)
-    snap, regime, target = _today_target(rules, prices, _macro(args.refresh))
+    macro = _macro(args.refresh)
+    snap, regime, target = engine.core_target(rules, prices, macro, cash_yield=engine.cash_yield(macro))
     portfolio = _portfolio(rules)
     text = build_report(rules, prices, snap, regime, target, portfolio)
     from . import sleeves
@@ -149,23 +160,27 @@ def cmd_trade(rules: dict, args) -> None:
               + (" WASH-SALE RISK" if r['wash_sale_risk'] else ""))
 
 
+def cmd_brain(rules: dict, args) -> None:
+    b = brain_mod.refresh(rules, args.refresh)
+    print(f"Brain refreshed {b['updated']}: regime {b['regime']['name']} (cap {b['regime']['equity_cap']:.0%}); "
+          f"trend {'on' if b['markets']['trend']['above_10m_average'] else 'off'}, momentum pick {b['markets']['momentum']['pick']}")
+    print(f"Wrote {brain_mod.STATE_FILE} and {brain_mod.INDICATORS_FILE}")
+
+
 def cmd_tax(rules: dict, args) -> None:
     from datetime import date
-
-    from . import sleeves, tax
 
     print(tax_markdown(rules, date.today()))
 
 
 def tax_markdown(rules: dict, today) -> str:
-    from . import sleeves, tax
+    import json
+
+    from . import engine, sleeves, tax
 
     ledger = sleeves.load_ledger(rules)
-    prices = {}
-    try:
-        prices = {t: float(load_prices([t])[t].iloc[-1]) for sl in ledger.values() for t in sl["positions"]}
-    except Exception:
-        pass
+    prices_file = engine.PAPER_DIR / "prices.json"  # every symbol the engine priced last run
+    prices = json.loads(prices_file.read_text()) if prices_file.exists() else {}
     lots = [l for sl in ledger.values() for l in tax.lots_from(sl)]
     rows = tax.unrealized(lots, prices, today, rules)
     return tax.markdown(rules, tax.year_summary(tax.REALIZED_FILE, today.year), rows)
@@ -246,9 +261,18 @@ def main(argv: list[str] | None = None) -> None:
     sw.add_argument("value", nargs="?", help="Redirected URL for login; comma-separated preview ids for send")
     args = p.parse_args(argv)
     rules = load_rules(args.rules)
-    {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain,
-     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard, "tax": cmd_tax, "schwab": cmd_schwab,
-     "review": cmd_review}[args.cmd](rules, args)
+    command_for(args.cmd)(rules, args)
+
+
+def command_for(name: str):
+    """Each subcommand maps to a cmd_<name> function in this module."""
+    fn = globals().get(f"cmd_{name}")
+    if fn is None:
+        raise SystemExit(f"No handler for command {name!r}")
+    return fn
+
+
+SUBCOMMANDS = ("fetch", "regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard", "tax", "review", "schwab")
 
 
 if __name__ == "__main__":

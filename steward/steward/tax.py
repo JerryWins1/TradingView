@@ -129,7 +129,11 @@ def defer_rebalance_sells(orders: list[tr.Order], lots: list[Lot], prices: dict[
             kept.append(o)
             continue
         px = prices.get(o.symbol, 0.0)
-        my = [l for l in lots if l.symbol == o.symbol and not l.long_term(today) and px > l.price]
+        if px <= 0:
+            kept.append(o)
+            continue
+        _, taken = consume_lots(lots, o.symbol, o.dollars / px, px, today, t.get("lot_method", "hifo"))
+        my = [l for l, _ in taken if not l.long_term(today) and px > l.price]  # the gains this sell would realize
         if not my:
             kept.append(o)
             continue

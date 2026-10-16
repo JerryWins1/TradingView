@@ -43,3 +43,13 @@ def test_combine_rows_sum_to_one_and_regime_cap_applies(rules):
     assert np.allclose(capped.sum(axis=1), 1)
     assert np.allclose(capped[["SPY", "EFA"]].sum(axis=1), 0.3)
     assert np.allclose(capped[CASH], 0.7)
+
+
+def test_dual_momentum_uses_the_cash_hurdle():
+    # SPY up 3% a year is beaten by a 4.7% T-bill, so the sleeve holds bonds; at 0% cash it would hold stocks.
+    p = make_prices({"SPY": np.linspace(100, 108, N), "EFA": np.linspace(100, 104, N), "AGG": np.full(N, 100.0)})
+    at_zero = dual_momentum_weights(p, "SPY", "EFA", "AGG", 12, cash_yield=0.0)
+    at_tbill = dual_momentum_weights(p, "SPY", "EFA", "AGG", 12, cash_yield=0.047)
+    assert (at_zero["SPY"] == 1).all() and (at_tbill["AGG"] == 1).all()
+    series = pd.Series(0.047, index=p.index)
+    assert dual_momentum_weights(p, "SPY", "EFA", "AGG", 12, cash_yield=series).equals(at_tbill)

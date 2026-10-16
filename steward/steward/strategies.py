@@ -27,17 +27,21 @@ def trend_weights(prices: pd.DataFrame, asset: str, months: int = 10) -> pd.Data
     return w[sma.notna()]
 
 
-def dual_momentum_weights(prices: pd.DataFrame, us: str, intl: str, bonds: str, months: int = 12) -> pd.DataFrame:
+def dual_momentum_weights(prices: pd.DataFrame, us: str, intl: str, bonds: str, months: int = 12,
+                          cash_yield: float | pd.Series = 0.0) -> pd.DataFrame:
     """Antonacci global equities momentum.
 
-    If U.S. stocks beat cash over the lookback, hold the stronger of U.S. and
-    international stocks; otherwise hold bonds.
+    If U.S. stocks beat cash (the T-bill yield, `cash_yield`, annual as a
+    fraction, scalar or a Series by date) over the lookback, hold the
+    stronger of U.S. and international stocks; otherwise hold bonds.
     """
     m = month_ends(prices)
     r = m.pct_change(months)
     w = pd.DataFrame(0.0, index=m.index, columns=prices.columns)
+    hurdle = cash_yield.reindex(m.index, method="ffill").fillna(0.0) if isinstance(cash_yield, pd.Series) else None
     for date, row in r.dropna().iterrows():
-        if row[us] > row[CASH]:
+        cash_ret = (float(hurdle[date]) if hurdle is not None else float(cash_yield)) * months / 12
+        if row[us] > cash_ret:
             pick = us if row[us] >= row[intl] else intl
         else:
             pick = bonds
@@ -45,11 +49,12 @@ def dual_momentum_weights(prices: pd.DataFrame, us: str, intl: str, bonds: str, 
     return w.loc[r.dropna().index]
 
 
-def combine(rules: dict, prices: pd.DataFrame, exposure_caps: pd.Series | None = None) -> pd.DataFrame:
+def combine(rules: dict, prices: pd.DataFrame, exposure_caps: pd.Series | None = None,
+            cash_yield: float | pd.Series = 0.0) -> pd.DataFrame:
     """Blend the two strategies, then cap stock exposure by economic regime."""
     u, s = rules["universe"], rules["strategy"]
     trend = trend_weights(prices, u["us_equity"], s["trend_months"])
-    mom = dual_momentum_weights(prices, u["us_equity"], u["intl_equity"], u["bonds"], s["momentum_months"])
+    mom = dual_momentum_weights(prices, u["us_equity"], u["intl_equity"], u["bonds"], s["momentum_months"], cash_yield)
     idx = trend.index.intersection(mom.index)
     w = s["trend_weight"] * trend.loc[idx] + s["momentum_weight"] * mom.loc[idx]
 

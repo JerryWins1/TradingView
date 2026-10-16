@@ -46,7 +46,7 @@ def line_chart(eq: pd.DataFrame, width: int = 720, height: int = 240) -> str:
     if eq.empty or len(eq) < 2 or not cols:
         return "<p class='muted'>Sleeve history starts with the first weekly run.</p>"
     idx = eq[cols].ffill()
-    idx = idx / idx.iloc[0] * 100
+    idx = idx / idx.apply(lambda c: c.dropna().iloc[0] if c.notna().any() else 1.0) * 100
     lo, hi = float(idx.min().min()), float(idx.max().max())
     pad = max((hi - lo) * 0.1, 1)
     lo, hi = lo - pad, hi + pad
@@ -59,11 +59,15 @@ def line_chart(eq: pd.DataFrame, width: int = 720, height: int = 240) -> str:
         parts.append(f"<line x1='{L}' x2='{width - R}' y1='{y(v):.1f}' y2='{y(v):.1f}' class='grid'/>"
                      f"<text x='{L - 6}' y='{y(v) + 4:.1f}' class='tick' text-anchor='end'>{v:.0f}</text>")
     for n, (i0, c) in enumerate(zip(range(len(cols)), cols)):
-        pts = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(idx[c]))
+        series = idx[c]
+        pts = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(series) if pd.notna(v))
+        if not pts:
+            continue
         parts.append(f"<polyline points='{pts}' class='s{n}' fill='none' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'/>")
-        xe, ye = x(len(idx) - 1), y(idx[c].iloc[-1])
+        last_i = int(series.notna().to_numpy().nonzero()[0][-1])
+        xe, ye = x(last_i), y(series.iloc[last_i])
         parts.append(f"<circle cx='{xe:.1f}' cy='{ye:.1f}' r='4' class='s{n} dot'/>"
-                     f"<text x='{xe + 8:.1f}' y='{ye + 4:.1f}' class='lbl'>{_esc(c)} {idx[c].iloc[-1]:.0f}</text>")
+                     f"<text x='{xe + 8:.1f}' y='{ye + 4:.1f}' class='lbl'>{_esc(c)} {series.iloc[last_i]:.0f}</text>")
     parts.append(f"<text x='{L}' y='{height - 6}' class='tick'>{idx.index[0].date()}</text>"
                  f"<text x='{width - R}' y='{height - 6}' class='tick' text-anchor='end'>{idx.index[-1].date()}</text></svg>")
     legend = "".join(f"<span class='key'><i class='s{n} sw'></i>{_esc(c)}</span>" for n, c in enumerate(cols))

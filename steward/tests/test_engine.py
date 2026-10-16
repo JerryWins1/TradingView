@@ -1,3 +1,4 @@
+import pytest
 import json
 from datetime import date
 
@@ -139,3 +140,52 @@ def test_live_run_saves_books_even_if_mirror_breaks(rules, monkeypatch, tmp_path
     out = engine.run(rules, broker, core, mom, macro, date(2026, 10, 19), dry_run=False, paper_dir=tmp_path)
     assert out["schwab_preview"].startswith("skipped")
     assert (tmp_path / "sleeves.json").exists() and (tmp_path / "equity.csv").exists() and (tmp_path / "prices.json").exists()
+
+
+def test_every_subcommand_has_a_handler():
+    from steward import __main__ as cli
+
+    for name in cli.SUBCOMMANDS:
+        assert callable(cli.command_for(name)), name
+
+
+def test_partial_fills_book_only_the_new_shares(rules, monkeypatch, tmp_path):
+    from steward import trade as tr
+
+    class Slow:
+        """Fills 4 of 10 at first, all 10 by the next run; filled_qty is cumulative like Alpaca's."""
+        def __init__(self): self.calls = 0
+        def get_order(self, oid):
+            self.calls += 1
+            return {"status": "partially_filled", "filled_qty": "4", "filled_avg_price": "100"} if self.calls == 1 \
+                else {"status": "filled", "filled_qty": "10", "filled_avg_price": "100"}
+
+    broker = Slow()
+    ledger = {"core": {"cash": 15000.0, "positions": {}, "lots": []}}
+    pending, realized = {}, []
+    o = tr.Order("2026-10-19", "SPY", "buy", 1000, "rebalance", order_id="o1", status="submitted")
+    engine.book_orders(broker, [o], "core", ledger, pending, date(2026, 10, 19), rules, set(), realized)
+    assert o.status == "partial" and ledger["core"]["positions"] == {"SPY": 4.0} and pending["o1"]["booked"] == 4.0
+    pending = engine.book_pending(broker, ledger, pending, date(2026, 10, 26), rules, set(), realized)
+    assert ledger["core"]["positions"] == {"SPY": 10.0} and ledger["core"]["cash"] == 15000 - 1000 and pending == {}
+
+
+def test_rejected_orders_are_not_left_pending(rules):
+    from steward import trade as tr
+
+    class Rejecting:
+        def get_order(self, oid): return {"status": "rejected", "filled_qty": "0"}
+
+    ledger = {"core": {"cash": 1.0, "positions": {}, "lots": []}}
+    pending = {}
+    o = tr.Order("d", "SPY", "buy", 100, "rebalance", order_id="o1", status="submitted")
+    engine.book_orders(Rejecting(), [o], "core", ledger, pending, date(2026, 10, 19), rules, set(), [])
+    assert o.status == "rejected" and pending == {}
+
+
+def test_signal_prices_stop_at_last_month_end():
+    p = make_prices({"SPY": np.linspace(100, 110, 60)}, start="2026-09-01")
+    sig = engine.signal_prices(p, date(2026, 10, 19))
+    assert sig.index[-1].month == 9 and (sig.index < pd.Timestamp("2026-10-01")).all()
+    assert engine.cash_yield({"tbill_3m": pd.Series([4.0, 4.7])}) == pytest.approx(0.047)
+    assert engine.cash_yield({}) == 0.0

@@ -122,3 +122,11 @@ def test_quarterly_review_records_history(rules, tmp_path):
     assert hist[-1]["beats_core"] == {"momentum": True, "options": False}
     # Too soon for another review
     assert "Next review due" in sleeves.run_review(rules, start + timedelta(weeks=30), eq, rev)
+
+
+def test_momentum_skips_stale_symbols_and_scores_one_window():
+    n = 300
+    p = make_prices({"AAA": np.linspace(100, 200, n), "BBB": np.linspace(100, 150, n)})
+    p.loc[p.index[-20:], "BBB"] = np.nan  # BBB's price file stopped four weeks ago
+    r = momentum.rank(p, 12, 1)
+    assert "AAA" in r.index and "BBB" not in r.index
