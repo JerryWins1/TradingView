@@ -24,6 +24,9 @@ def snap(**kw):
         ({"sahm": 0.6}, "Contraction"),
         ({"hy_spread": 7.0, "claims_rise": 0.3}, "Contraction"),
         ({"hy_spread_change_6m": -1.5}, "Recovery"),
+        ({"cpi_yoy": 0.037, "fed_change_6m": 0.25}, "Late-cycle"),   # Fed hiking into hot inflation
+        ({"cpi_yoy": 0.037, "fed_change_6m": 0.0}, "Expansion"),     # Hot inflation but Fed on hold
+        ({"cpi_yoy": 0.02, "fed_change_6m": 0.25}, "Expansion"),     # Hikes with inflation tame
     ],
 )
 def test_classify(kw, expected):
@@ -44,8 +47,12 @@ def test_build_snapshot_math_and_publication_lag():
         "hy_spread": _series([4.0] * 300 + [6.0] * 300, "D"),
         "claims": _series([200_000] * 60 + [260_000] * 10, "W"),
         "unrate": unrate,
+        "cpi": _series([100 * 1.003 ** i for i in range(20)], "MS"),
+        "fed_funds": _series([0.1] * 10 + [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0], "MS"),
     }
     s = build_snapshot(series, pd.Timestamp("2021-06-01"))
+    assert s.cpi_yoy == pytest.approx(1.003 ** 12 - 1)
+    assert s.fed_change_6m > 0
     assert s.curve == 0.5
     assert s.hy_spread == 6.0
     assert s.claims_rise == pytest.approx(0.30)

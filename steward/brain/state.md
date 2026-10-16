@@ -50,9 +50,21 @@ _Data section pending first automatic refresh (`python -m steward brain`). The h
 ### Decisions log
 
 - 2026-10-16: Starting capital set to $25,000 (was $20,000).
-- 2026-10-16: Proposed first allocation at the Late-cycle setting: about $7,500 SPY, $7,500 EFA, $10,000 T-bills. Awaiting decision between 60% (recommended) and the model's 100%.
-- 2026-10-16: Proposed adding an inflation/Fed-hiking rule to the regime model. Not yet built; awaiting decision.
+- 2026-10-16: DECIDED: start at the Late-cycle setting, 60% stocks. For the core sleeve that is about $4,500 SPY, $4,500 EFA, $6,000 cash/T-bills; momentum and options sleeves run their own rules.
+- 2026-10-16: DECIDED and BUILT: inflation/Fed rule added to the regime model. CPI at or above 3% while the fed funds rate is up 0.20+ points over 6 months reads as Late-cycle. With today's data (CPI 3.7%, September hike) the model itself now says Late-cycle, so the 60% is a rule, not a judgment call.
+- 2026-10-16: DECIDED: three sleeves, $15,000 core / $5,000 momentum stocks / $5,000 options (watch mode first). Quarterly scorecard moves capital; no switching on recent performance.
+- 2026-10-16: Tax layer added. Ledger tracks lots and holding periods; every sell logs its estimated tax; routine rebalance sells wait up to 45 days for long-term status; stops never wait. Account type, brackets and lot method live in [tax] in rules.toml (placeholders until Jerry fills them in).
 - Target return expectation on record: 12 to 25% a year with smaller drawdowns than buy-and-hold. Doubling every six months was judged unrealistic and is tracked only as a backtest statistic.
+
+### Tax facts on file (2026, verified 2026-10-16)
+
+- Long-term capital gains (held over 1 year): 0% up to $49,450 single / $98,900 joint taxable income; 15% to $545,500 / $613,700; 20% above. Short-term gains taxed as ordinary income.
+- 3.8% Net Investment Income Tax above $200,000 single / $250,000 joint MAGI (not inflation-indexed).
+- Standard deduction 2026: $16,100 single / $32,200 joint.
+- IRA contribution limit 2026: $7,500, plus $1,100 catch-up at 50+. Roth phase-out: $153k to $168k single, $242k to $252k joint.
+- Wash sale: loss disallowed if the same security is bought within 30 days either side. Does not apply in an IRA.
+- Index options (SPX, XSP) are Section 1256: 60% long / 40% short regardless of holding period, no wash sales. SPY options are not. For real money the options sleeve should use XSP (one-tenth the size of SPX) instead of SPY.
+- Open question for Jerry: which account type will hold real money (taxable, traditional IRA, Roth IRA)? This decides how much of the tax layer matters.
 
 ### Open items
 

@@ -80,7 +80,8 @@ def test_live_run_books_fills_per_sleeve(rules, monkeypatch, tmp_path):
     # Core is fully invested in SPY/EFA (Expansion, trend on, EFA momentum); momentum holds 6 names.
     assert set(ledger["core"]["positions"]) <= {"SPY", "EFA"} and ledger["core"]["positions"]
     assert len(ledger["momentum"]["positions"]) == 6
-    assert ledger["options"] == {"cash": 5000.0, "positions": {}}
+    assert ledger["options"] == {"cash": 5000.0, "positions": {}, "lots": []}
+    assert all("date" in l and l["qty"] > 0 for l in ledger["core"]["lots"])  # every buy recorded as a lot
     assert abs(sum(out["values"][k] for k in ("core", "momentum", "options")) - 25000) < 1  # fills at the same price, no cost
     assert (tmp_path / "equity.csv").exists() and (tmp_path / "trades.csv").exists()
     assert (tmp_path / "options_watch.csv").exists()

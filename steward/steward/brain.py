@@ -24,9 +24,7 @@ NOTES_START = "<!-- NOTES:START -->"
 NOTES_END = "<!-- NOTES:END -->"
 
 EXTRA_FRED = {
-    "cpi": "CPIAUCSL",      # Consumer prices, for year-over-year inflation
     "core_cpi": "CPILFESL",
-    "fed_funds": "FEDFUNDS",
     "tbill_3m": "DGS3MO",
     "treasury_10y": "DGS10",
 }
@@ -75,9 +73,9 @@ def gather(rules: dict, refresh: bool = False) -> dict:
             "jobless_claims_4wk_vs_52wk_low": {"value": snap.claims_rise, "asof": _last(macro["claims"])[1], "unit": "fraction"},
             "unemployment_rate": {"value": _last(macro["unrate"])[0], "asof": _last(macro["unrate"])[1], "unit": "pct"},
             "sahm_gauge": {"value": snap.sahm, "trigger": 0.5, "unit": "pct points"},
-            "cpi_yoy": {"value": _yoy(extra["cpi"]), "asof": _last(extra["cpi"])[1], "unit": "fraction"},
+            "cpi_yoy": {"value": snap.cpi_yoy, "asof": _last(macro["cpi"])[1], "unit": "fraction"},
             "core_cpi_yoy": {"value": _yoy(extra["core_cpi"]), "asof": _last(extra["core_cpi"])[1], "unit": "fraction"},
-            "fed_funds": {"value": _last(extra["fed_funds"])[0], "asof": _last(extra["fed_funds"])[1], "unit": "pct"},
+            "fed_funds": {"value": _last(macro["fed_funds"])[0], "change_6m": snap.fed_change_6m, "asof": _last(macro["fed_funds"])[1], "unit": "pct"},
             "tbill_3m": {"value": _last(extra["tbill_3m"])[0], "asof": _last(extra["tbill_3m"])[1], "unit": "pct"},
             "treasury_10y": {"value": _last(extra["treasury_10y"])[0], "asof": _last(extra["treasury_10y"])[1], "unit": "pct"},
         },
@@ -116,7 +114,7 @@ def render_data(b: dict) -> str:
         f"| Sahm gauge | {i['sahm_gauge']['value']:.2f} (trigger 0.50) | |",
         f"| CPI inflation (yoy) | {i['cpi_yoy']['value']:.1%} | {i['cpi_yoy']['asof']} |",
         f"| Core CPI (yoy) | {i['core_cpi_yoy']['value']:.1%} | {i['core_cpi_yoy']['asof']} |",
-        f"| Fed funds rate | {i['fed_funds']['value']:.2f}% | {i['fed_funds']['asof']} |",
+        f"| Fed funds rate | {i['fed_funds']['value']:.2f}% ({i['fed_funds']['change_6m']:+.2f} over 6 mo) | {i['fed_funds']['asof']} |",
         f"| 3-month T-bill | {i['tbill_3m']['value']:.2f}% | {i['tbill_3m']['asof']} |",
         f"| 10-year Treasury | {i['treasury_10y']['value']:.2f}% | {i['treasury_10y']['asof']} |",
         "",

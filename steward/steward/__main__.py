@@ -107,6 +107,9 @@ def cmd_report(rules: dict, args) -> None:
         text += "\n## Sleeves\n\n| Sleeve | Value |\n|---|---|\n"
         text += "".join(f"| {k} | ${v:,.0f} |\n" for k, v in latest.items())
         text += "\n## Scorecard\n\n" + sleeves.scorecard_markdown(sleeves.score(eq), rules) + "\n"
+    from datetime import date
+
+    text += "\n## Taxes (if this were real money)\n\n" + tax_markdown(rules, date.today()) + "\n"
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(text)
@@ -140,6 +143,32 @@ def cmd_trade(rules: dict, args) -> None:
               f"credit ${n['credit'] * 100:,.0f}, max loss ${n['max_loss']:,.0f}")
     for c in (opt or {}).get("closed", []):
         print(f"  [options] close {c['id']}: {c['reason']}")
+    for r in out["realized"]:
+        print(f"  [tax] {r['sleeve']} sold {r['qty']:g} {r['symbol']}: gain {r['gain']:+,.0f} "
+              f"({'long' if r['long_term'] else 'short'}-term, {r['days_held']}d), est. tax ${r['est_tax']:,.0f}"
+              + (" WASH-SALE RISK" if r['wash_sale_risk'] else ""))
+
+
+def cmd_tax(rules: dict, args) -> None:
+    from datetime import date
+
+    from . import sleeves, tax
+
+    print(tax_markdown(rules, date.today()))
+
+
+def tax_markdown(rules: dict, today) -> str:
+    from . import sleeves, tax
+
+    ledger = sleeves.load_ledger(rules)
+    prices = {}
+    try:
+        prices = {t: float(load_prices([t])[t].iloc[-1]) for sl in ledger.values() for t in sl["positions"]}
+    except Exception:
+        pass
+    lots = [l for sl in ledger.values() for l in tax.lots_from(sl)]
+    rows = tax.unrealized(lots, prices, today, rules)
+    return tax.markdown(rules, tax.year_summary(tax.REALIZED_FILE, today.year), rows)
 
 
 def cmd_scorecard(rules: dict, args) -> None:
@@ -161,7 +190,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--rules", help="Path to rules.toml")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("fetch", help="Download prices and economic data")
-    for name in ("regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard"):
+    for name in ("regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard", "tax"):
         sp = sub.add_parser(name)
         sp.add_argument("--refresh", action="store_true", help="Re-download data first")
     sub.choices["backtest"].add_argument("--start", default="2004-01-01")
@@ -172,7 +201,7 @@ def main(argv: list[str] | None = None) -> None:
     args = p.parse_args(argv)
     rules = load_rules(args.rules)
     {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain,
-     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard}[args.cmd](rules, args)
+     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard, "tax": cmd_tax}[args.cmd](rules, args)
 
 
 if __name__ == "__main__":

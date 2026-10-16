@@ -23,10 +23,13 @@ WEEKS_PER_YEAR = 52
 
 
 def load_ledger(rules: dict, path: Path = LEDGER_FILE) -> dict:
-    """Each sleeve: {"cash": float, "positions": {symbol: shares}}."""
+    """Each sleeve: {"cash": float, "positions": {symbol: shares}, "lots": [{symbol, qty, price, date}]}."""
     if path.exists():
-        return json.loads(path.read_text())
-    return {name: {"cash": float(s["capital"]), "positions": {}} for name, s in rules["sleeves"].items()}
+        led = json.loads(path.read_text())
+        for sl in led.values():
+            sl.setdefault("lots", [])
+        return led
+    return {name: {"cash": float(s["capital"]), "positions": {}, "lots": []} for name, s in rules["sleeves"].items()}
 
 
 def save_ledger(ledger: dict, path: Path = LEDGER_FILE) -> None:
@@ -43,17 +46,29 @@ def sleeve_positions(sleeve: dict, prices: dict[str, float]) -> dict[str, tuple[
     return {sym: (q * prices.get(sym, 0.0), prices.get(sym, 0.0)) for sym, q in sleeve["positions"].items() if q}
 
 
-def apply_fill(sleeve: dict, symbol: str, side: str, qty: float, price: float) -> None:
-    """Book a fill into the sleeve's ledger."""
+def apply_fill(sleeve: dict, symbol: str, side: str, qty: float, price: float, day: str | None = None,
+               lot_method: str = "hifo") -> list:
+    """Book a fill into the sleeve's ledger. Returns the lots consumed on a sell as (lot, qty) pairs."""
+    from datetime import date
+
+    from . import tax
+
     pos = sleeve["positions"]
+    sleeve.setdefault("lots", [])
+    day = day or date.today().isoformat()
+    taken = []
     if side == "buy":
         sleeve["cash"] -= qty * price
         pos[symbol] = pos.get(symbol, 0.0) + qty
+        sleeve["lots"].append({"symbol": symbol, "qty": qty, "price": price, "date": day})
     else:
         sleeve["cash"] += qty * price
         pos[symbol] = pos.get(symbol, 0.0) - qty
         if abs(pos[symbol]) < 1e-9:
             del pos[symbol]
+        lots, taken = tax.consume_lots(tax.lots_from(sleeve), symbol, qty, price, date.fromisoformat(day), lot_method)
+        sleeve["lots"] = tax.lots_to(lots)
+    return taken
 
 
 def record_equity(values: dict[str, float], asof: date, path: Path = EQUITY_FILE) -> None:

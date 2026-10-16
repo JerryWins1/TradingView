@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import momentum, options, sleeves, trade as tr
+from . import momentum, options, sleeves, tax, trade as tr
 from .data import CASH, load_price
 from .regime import FRED_SERIES, build_snapshot, classify
 from .strategies import combine
@@ -49,27 +49,36 @@ def core_target(rules: dict, prices: pd.DataFrame, macro: dict) -> tuple[object,
     return snap, regime, combine(rules, prices, caps).iloc[-1]
 
 
-def book_pending(broker, ledger: dict, pending: dict) -> dict:
+def _book(ledger: dict, sleeve_name: str, symbol: str, side: str, qty: float, price: float, today: date,
+          rules: dict, recent_buys: set[str], realized: list) -> None:
+    taken = sleeves.apply_fill(ledger[sleeve_name], symbol, side, qty, price, today.isoformat(),
+                               rules.get("tax", {}).get("lot_method", "hifo"))
+    if taken:
+        realized += tax.realize(sleeve_name, taken, price, today, rules, recent_buys)
+
+
+def book_pending(broker, ledger: dict, pending: dict, today: date, rules: dict, recent_buys: set[str], realized: list) -> dict:
     """Book fills for orders submitted last run; keep the ones still open."""
     still = {}
     for oid, meta in pending.items():
         o = broker.get_order(oid)
         qty = float(o.get("filled_qty") or 0)
         if qty > 0:
-            sleeves.apply_fill(ledger[meta["sleeve"]], meta["symbol"], meta["side"], qty, float(o["filled_avg_price"]))
+            _book(ledger, meta["sleeve"], meta["symbol"], meta["side"], qty, float(o["filled_avg_price"]), today, rules, recent_buys, realized)
         if o.get("status") not in ("filled", "canceled", "expired", "rejected", "replaced"):
             still[oid] = meta
     return still
 
 
-def book_orders(broker, orders: list[tr.Order], sleeve_name: str, ledger: dict, pending: dict) -> None:
+def book_orders(broker, orders: list[tr.Order], sleeve_name: str, ledger: dict, pending: dict, today: date,
+                rules: dict, recent_buys: set[str], realized: list) -> None:
     for o in orders:
         if o.status != "submitted":
             continue
         got = broker.get_order(o.order_id)
         qty = float(got.get("filled_qty") or 0)
         if qty > 0:
-            sleeves.apply_fill(ledger[sleeve_name], o.symbol, o.side, qty, float(got["filled_avg_price"]))
+            _book(ledger, sleeve_name, o.symbol, o.side, qty, float(got["filled_avg_price"]), today, rules, recent_buys, realized)
             o.status = "filled" if got.get("status") == "filled" else "partial"
         if got.get("status") != "filled":
             pending[o.order_id] = {"sleeve": sleeve_name, "symbol": o.symbol, "side": o.side}
@@ -81,10 +90,12 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
     ledger = sleeves.load_ledger(rules, paper_dir / "sleeves.json")
     state_all = _json(paper_dir / "state.json", {})
     pending = _json(paper_dir / "pending.json", {})
-    out = {"date": today.isoformat(), "sleeves": {}, "orders": [], "options": None}
+    out = {"date": today.isoformat(), "sleeves": {}, "orders": [], "options": None, "realized": []}
+    realized: list = []
+    recent_buys = tax.recent_buy_symbols(paper_dir / "trades.csv", today)
 
     if not dry_run:
-        pending = book_pending(broker, ledger, pending)
+        pending = book_pending(broker, ledger, pending, today, rules, recent_buys, realized)
 
     # Prices: broker's live price for anything held, else last cached close.
     live = {p.symbol: p.current_price for p in broker.positions()}
@@ -104,10 +115,12 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
         equity = sleeves.sleeve_value(sl, prices)
         positions = sleeves.sleeve_positions(sl, prices)
         orders, state = tr.plan(target, equity, positions, px_frame, sleeve_rules, state_all.get(name, {"peak_equity": None, "breaker_until": None, "last_signal_month": None}), today)
-        tr.execute(orders, broker, dry_run)
+        orders = tax.defer_rebalance_sells(orders, tax.lots_from(sl), prices, equity, rules, today)
+        live_orders = [o for o in orders if not o.status.startswith("deferred")]
+        tr.execute(live_orders, broker, dry_run)
         if not dry_run and any(o.status == "submitted" for o in orders):
             time.sleep(FILL_WAIT_SECONDS)
-            book_orders(broker, orders, name, ledger, pending)
+            book_orders(broker, orders, name, ledger, pending, today, rules, recent_buys, realized)
         state_all[name] = state
         out["sleeves"][name] = {"equity_before": equity, "target": {k: round(float(v), 3) for k, v in target.items() if v > 0}}
         out["orders"] += [{"sleeve": name, **o.__dict__} for o in orders]
@@ -119,7 +132,9 @@ def run(rules: dict, broker, core_prices: pd.DataFrame, mom_prices: pd.DataFrame
     values = {name: sleeves.sleeve_value(sl, prices) for name, sl in ledger.items()}
     values["total"] = sum(values.values())
     out["values"] = values
+    out["realized"] = [r.__dict__ for r in realized]
     if not dry_run:
+        tax.append_realized(realized, paper_dir / "realized.csv")
         sleeves.save_ledger(ledger, paper_dir / "sleeves.json")
         _save(paper_dir / "state.json", state_all)
         _save(paper_dir / "pending.json", pending)

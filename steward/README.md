@@ -26,7 +26,7 @@ assumed.
 |---|---|---|
 | Trend (50%) | Hold SPY while it is above its 10-month average, else cash | Meb Faber, *A Quantitative Approach to Tactical Asset Allocation* |
 | Momentum (50%) | Each month hold the stronger of U.S. (SPY) or international (EFA) stocks if U.S. stocks beat cash over 12 months, else bonds (AGG) | Gary Antonacci, *Dual Momentum Investing* |
-| Economy | Label the regime from the yield curve, credit spreads, jobless claims and the Sahm rule; cap stocks at 100 / 80 / 60 / 30% for Expansion / Recovery / Late-cycle / Contraction | FRED public data |
+| Economy | Label the regime from the yield curve, credit spreads, jobless claims, the Sahm rule, and the Fed hiking into hot inflation (CPI 3%+ with fed funds up 0.20+ pts in 6 months); cap stocks at 100 / 80 / 60 / 30% for Expansion / Recovery / Late-cycle / Contraction | FRED public data |
 | Risk | 1% max risk per trade, 25% max position, 10% trailing stops, go to cash at -15% from peak until the next monthly signal | `rules.toml` |
 
 Every number lives in [`rules.toml`](rules.toml).
@@ -111,6 +111,30 @@ scorecard, recent orders, and the brain's notes. Plain HTML, works in light
 and dark mode and on a phone. The weekly workflow rebuilds it; turn on
 GitHub Pages (Settings, Pages, branch `main`, folder `/docs`) to get it at
 a URL.
+
+## Taxes
+
+The paper account owes no tax, but the system trades as if it did, so the
+habits are right before real money arrives:
+
+- Every buy is recorded as a lot (shares, price, date) in the sleeve ledger.
+- Every sell logs the gain, whether it was short- or long-term, and the
+  estimated tax, to `paper/realized.csv`. Sells use highest-cost-first
+  (`lot_method = "hifo"`) to keep gains small.
+- A routine rebalance sell waits (up to 45 days, and only if the position is
+  within 10 points of target) when the lot is about to turn long-term.
+  Stops and the circuit breaker never wait: risk control beats tax.
+- Buying back something sold at a loss within 30 days is flagged as a
+  wash-sale risk.
+- `python -m steward tax` shows this year's realized gains, estimated tax,
+  and every open lot with its days to long-term status. The weekly report
+  carries the same section.
+
+Your situation goes in `[tax]` in `rules.toml` (account type, brackets,
+state, NIIT). Inside an IRA or Roth none of this applies and the layer
+switches itself off. For real money, the options sleeve should trade XSP
+(index options, Section 1256 treatment) rather than SPY options. None of
+this is tax advice; confirm with a CPA.
 
 ## The brain
 

@@ -83,3 +83,20 @@ review_every_days = 91          # Quarterly
 promote_step = 0.25             # +25% capital after two straight winning reviews
 demote_step = 0.25
 max_experimental_share = 0.50   # No non-core sleeve above half the account
+
+# ---------------------------------------------------------------------------
+# Taxes. The paper account owes none; these assumptions make the system trade
+# the way it would have to with real money and show the tax cost of every sell.
+# Private repo: fill in your own situation here, not in chat. Confirm with a CPA.
+
+[tax]
+account_type = "taxable"   # "taxable", "ira" or "roth". IRA/Roth: no tax on individual trades.
+filing_status = "mfj"      # "single", "mfj", "hoh" (used for labels only)
+ordinary_rate = 0.24       # Federal bracket for short-term gains and interest (placeholder)
+long_term_rate = 0.15      # Federal long-term capital gains rate (2026: 0% / 15% / 20%)
+state_rate = 0.0           # State income tax on gains, if any
+niit = false               # 3.8% Net Investment Income Tax above $200k single / $250k joint MAGI
+lot_method = "hifo"        # Which shares to sell first: "hifo" (smallest gain) or "fifo" (oldest)
+defer_for_long_term = true # Hold a routine rebalance sell if the lot turns long-term soon
+defer_max_days = 45        # ...but only if long-term status is within this many days
+defer_max_drift = 0.10     # ...and the position is no more than 10 points off target
