@@ -1,0 +1,58 @@
+name: Weekly check-in
+
+# Mondays about an hour after the U.S. market opens. If the Alpaca paper keys
+# are set as repository secrets (ALPACA_API_KEY, ALPACA_SECRET_KEY), it places
+# the week's paper orders first, commits the trade log, then posts the
+# check-in as an issue, which GitHub emails to you. Without keys it only reports.
+
+on:
+  schedule:
+    - cron: "40 14 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan orders but send nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency: paper-account
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    env:
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+      - run: python -m steward fetch
+      - name: Place paper orders
+        if: env.ALPACA_API_KEY != ''
+        run: python -m steward trade ${{ inputs.dry_run && '--dry-run' || '' }} | tee trade-output.txt
+      - name: Save trade log and breaker state
+        if: env.ALPACA_API_KEY != '' && !inputs.dry_run
+        run: |
+          git config user.name "steward-bot"
+          git config user.email "steward-bot@users.noreply.github.com"
+          git add paper/trades.csv paper/state.json
+          git diff --cached --quiet || git commit -m "Paper trades $(date +%Y-%m-%d)"
+          git push
+      - run: python -m steward report --out reports/latest.md
+      - name: Post the check-in as an issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp reports/latest.md body.md
+          if [ -f trade-output.txt ]; then
+            { echo; echo '## Orders this run'; echo; echo '```'; cat trade-output.txt; echo '```'; } >> body.md
+          fi
+          gh issue create --title "Steward weekly check-in $(date +%Y-%m-%d)" --body-file body.md

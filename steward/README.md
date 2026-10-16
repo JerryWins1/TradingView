@@ -42,15 +42,41 @@ python -m steward report      # the weekly check-in
 python -m pytest              # tests
 ```
 
-Your paper holdings live in `paper/portfolio.json` (`cash` plus `positions`
-as shares). Update it when you place paper trades, and the report will show
-the trades still needed and any stop that has been hit.
+Without an Alpaca account, your paper holdings live in
+`paper/portfolio.json` (`cash` plus `positions` as shares). Update it when
+you place paper trades, and the report will show the trades still needed and
+any stop that has been hit.
 
-## Weekly check-in
+## Test account: paper trading at Alpaca
 
-`.github/workflows/weekly-report.yml` runs every Monday morning. It fetches
-fresh data, builds the report and opens it as a GitHub issue, which GitHub
-emails to you. You can also run it on demand from the Actions tab.
+Steward trades a free Alpaca **paper** account exactly as it would a real
+one: real market prices, real fills, no real money. The connection is
+hard-wired to the paper endpoint and refuses anything else.
+
+Setup (about five minutes):
+
+1. Open a paper-only account at [alpaca.markets](https://alpaca.markets) and
+   set its balance to $20,000 (paper dashboard, "Reset").
+2. In the paper dashboard, generate an API key and secret.
+3. In this repo: Settings, Secrets and variables, Actions. Add
+   `ALPACA_API_KEY` and `ALPACA_SECRET_KEY`.
+4. Actions tab, "Weekly check-in", Run workflow with "dry run" ticked to see
+   the planned orders without sending them.
+
+What happens each Monday (`.github/workflows/weekly.yml`):
+
+- Tests run, then fresh prices and economic data are fetched.
+- `python -m steward trade` checks the circuit breaker, then trailing stops,
+  then rebalances toward the month's targets (sells first, then buys).
+- Every order is appended to `paper/trades.csv` with its reason, and the
+  breaker state to `paper/state.json`; both are committed to the repo.
+- The check-in is posted as a GitHub issue, which GitHub emails to you,
+  with the orders placed that run.
+
+Without the Alpaca secrets the same workflow only posts the report, and the
+report reads holdings from `paper/portfolio.json`.
+
+Locally: `python -m steward trade --dry-run` plans orders without sending.
 
 ## Validation checklist, before any real money
 
@@ -71,8 +97,8 @@ emails to you. You can also run it on demand from the Actions tab.
 ## Roadmap
 
 - **Phase 1 (this):** rules, backtest, economy dashboard, weekly report.
-- **Phase 2:** automatic paper trades through the Alpaca paper API, still
-  with no real money.
+- **Phase 2 (built):** automatic paper trades through the Alpaca paper API,
+  still with no real money. Judge it over 3 to 6 months.
 - **Phase 3:** options overlay limited to covered calls and defined-risk
   spreads, paper only first.
 - **Phase 4:** real-money mode, gated behind the validation checklist and your

@@ -34,3 +34,13 @@ def test_report_flags_trades_and_stops(rules):
     assert "STOP HIT" in text  # 170 is below 10% under the 200 high
     assert "Not financial advice" in text
     assert "Buy about $" in text or "Sell about $" in text
+
+
+def test_report_prefers_broker_prices(rules):
+    n = 400
+    p = make_prices({"SPY": np.full(n, 100.0), "EFA": np.full(n, 100.0), "AGG": np.full(n, 100.0)})
+    target = combine(rules, p).iloc[-1]
+    portfolio = {"cash": 10000, "positions": {"SPY": 50}, "prices": {"SPY": 200.0}}
+    s = snap()
+    text = build_report(rules, p, s, classify(s, CAPS), target, portfolio)
+    assert "**Paper account value:** $20,000" in text  # 10,000 cash + 50 x $200

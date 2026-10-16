@@ -41,7 +41,9 @@ def build_report(
     target: pd.Series,
     portfolio: dict,
 ) -> str:
-    last = prices.iloc[-1]
+    last = prices.iloc[-1].copy()
+    for sym, px in portfolio.get("prices", {}).items():  # live broker prices when available
+        last[sym] = px
     asof = prices.index[-1].date()
     weights, total = current_weights(portfolio, last)
     band = rules["risk"]["rebalance_band"]
