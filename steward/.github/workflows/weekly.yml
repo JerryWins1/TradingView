@@ -39,13 +39,14 @@ jobs:
       - name: Place paper orders
         if: env.ALPACA_API_KEY != ''
         run: python -m steward trade ${{ inputs.dry_run && '--dry-run' || '' }} | tee trade-output.txt
-      - name: Save brain, trade log and breaker state
+      - run: python -m steward dashboard
+      - name: Save brain, dashboard, ledgers and trade logs
         run: |
           git config user.name "steward-bot"
           git config user.email "steward-bot@users.noreply.github.com"
-          git add brain/
+          git add brain/ docs/
           if [ -n "$ALPACA_API_KEY" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
-            git add paper/trades.csv paper/state.json
+            git add paper/
           fi
           git diff --cached --quiet || git commit -m "Weekly refresh $(date +%Y-%m-%d)"
           git push

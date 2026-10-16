@@ -32,3 +32,54 @@ Expansion = 1.0
 Recovery = 0.8
 Late-cycle = 0.6
 Contraction = 0.3
+
+# ---------------------------------------------------------------------------
+# Test beds. Three sleeves share one paper account; each keeps its own ledger,
+# stops and circuit breaker. Capital moves between them only by the scorecard
+# rules below, never by feel.
+
+[sleeves.core]
+capital = 15000
+strategy = "core"          # The trend + momentum + regime system above
+
+[sleeves.momentum]
+capital = 5000
+strategy = "momentum"      # Rules-based "hot stocks"
+
+[sleeves.options]
+capital = 5000
+strategy = "options"       # Defined-risk credit spreads on SPY
+
+[momentum]
+holdings = 6               # Equal-weight the top N
+lookback_months = 12       # Rank on 12-month return...
+skip_months = 1            # ...excluding the most recent month (standard practice)
+trailing_stop = 0.10
+max_drawdown = 0.15
+rebalance_band = 0.05
+# Liquid U.S. large caps. Edit freely; the ranking does the picking.
+universe = [
+  "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "AVGO", "TSLA", "LLY",
+  "JPM", "V", "MA", "UNH", "XOM", "COST", "HD", "PG", "JNJ", "ABBV",
+  "NFLX", "CRM", "ORCL", "AMD", "BAC", "KO", "PEP", "MRK", "CVX", "WMT",
+  "ADBE", "TMO", "CSCO", "ACN", "MCD", "ABT", "LIN", "GE", "CAT", "QCOM",
+  "TXN", "AMGN", "ISRG", "INTU", "NOW", "GS", "BKNG", "UBER", "PANW", "ANET",
+]
+
+[options]
+mode = "watch"             # "watch" logs the trade it would make; "trade" sends it
+underlying = "SPY"
+days_to_expiry_min = 30
+days_to_expiry_max = 45
+short_strike_pct_below = 0.06   # Short put about 6% under spot (rough stand-in for ~16 delta)
+spread_width = 5                # Dollars between short and long strike
+max_open_spreads = 3
+max_risk_per_spread = 250       # Width x 100 minus credit must stay under this
+take_profit = 0.50              # Buy back at 50% of the credit received
+stop_multiple = 2.0             # Close if the spread costs 2x the credit to buy back
+
+[scorecard]
+review_every_days = 91          # Quarterly
+promote_step = 0.25             # +25% capital after two straight winning reviews
+demote_step = 0.25
+max_experimental_share = 0.50   # No non-core sleeve above half the account

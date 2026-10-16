@@ -36,7 +36,8 @@ class Order:
     side: str
     dollars: float
     reason: str
-    close: bool = False  # Sell the whole position, not a dollar amount
+    close: bool = False  # Sell the sleeve's whole position, not a dollar amount
+    qty: float = 0.0     # Shares to sell when close is set
     order_id: str = ""
     status: str = "planned"
 
@@ -93,9 +94,9 @@ def plan(
 
     if equity <= state["peak_equity"] * (1 - risk["max_drawdown"]):
         state["breaker_until"] = this_month
-        for sym, (value, _) in positions.items():
+        for sym, (value, price) in positions.items():
             if value > 0:
-                orders.append(Order(d, sym, "sell", value, f"circuit breaker: equity {equity:,.0f} is {risk['max_drawdown']:.0%} under peak {state['peak_equity']:,.0f}", close=True))
+                orders.append(Order(d, sym, "sell", value, f"circuit breaker: equity {equity:,.0f} is {risk['max_drawdown']:.0%} under peak {state['peak_equity']:,.0f}", close=True, qty=value / price))
         return orders, state
 
     stopped = set()
@@ -104,9 +105,9 @@ def plan(
             continue
         high = float(prices[sym].iloc[-STOP_LOOKBACK_DAYS:].max())
         stop = high * (1 - risk["trailing_stop"])
-        if price <= stop:
+        if price > 0 and price <= stop:
             stopped.add(sym)
-            orders.append(Order(d, sym, "sell", value, f"trailing stop: {price:.2f} <= {stop:.2f} ({risk['trailing_stop']:.0%} under {high:.2f} high)", close=True))
+            orders.append(Order(d, sym, "sell", value, f"trailing stop: {price:.2f} <= {stop:.2f} ({risk['trailing_stop']:.0%} under {high:.2f} high)", close=True, qty=value / price))
 
     band = risk["rebalance_band"]
     sells, buys = [], []
@@ -131,7 +132,7 @@ def execute(orders: list[Order], broker, dry_run: bool) -> list[Order]:
             continue
         try:
             if o.close:
-                o.order_id = broker.close_position(o.symbol)
+                o.order_id = broker.sell_qty(o.symbol, o.qty)  # only this sleeve's shares
             elif o.side == "sell":
                 o.order_id = broker.sell_notional(o.symbol, o.dollars)
             else:

@@ -103,3 +103,32 @@ class AlpacaPaper:
     def close_position(self, symbol: str) -> str:
         o = self._request("DELETE", f"/v2/positions/{symbol}")
         return o["id"] if o else ""
+
+    def sell_qty(self, symbol: str, qty: float) -> str:
+        o = self._request("POST", "/v2/orders", {
+            "symbol": symbol, "qty": f"{qty:.6f}".rstrip("0").rstrip("."), "side": "sell",
+            "type": "market", "time_in_force": "day",
+        })
+        return o["id"]
+
+    def get_order(self, order_id: str) -> dict:
+        """Status plus filled_qty and filled_avg_price once filled."""
+        return self._request("GET", f"/v2/orders/{order_id}")
+
+    def option_contracts(self, underlying: str, expiry_from: str, expiry_to: str, kind: str = "put") -> list[dict]:
+        """Tradable option contracts for one underlying, with last close prices."""
+        out, token = [], None
+        while True:
+            q = (f"/v2/options/contracts?underlying_symbols={underlying}&type={kind}&status=active"
+                 f"&expiration_date_gte={expiry_from}&expiration_date_lte={expiry_to}&limit=1000")
+            if token:
+                q += f"&page_token={token}"
+            page = self._request("GET", q)
+            out += page.get("option_contracts", [])
+            token = page.get("next_page_token")
+            if not token:
+                return out
+
+    def submit_order(self, body: dict) -> str:
+        """Send a prepared order body (used for multi-leg options orders)."""
+        return self._request("POST", "/v2/orders", body)["id"]

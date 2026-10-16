@@ -99,6 +99,14 @@ def cmd_report(rules: dict, args) -> None:
     snap, regime, target = _today_target(rules, prices, _macro(args.refresh))
     portfolio = _portfolio(rules)
     text = build_report(rules, prices, snap, regime, target, portfolio)
+    from . import sleeves
+
+    eq = sleeves.load_equity()
+    if not eq.empty:
+        latest = eq.ffill().iloc[-1]
+        text += "\n## Sleeves\n\n| Sleeve | Value |\n|---|---|\n"
+        text += "".join(f"| {k} | ${v:,.0f} |\n" for k, v in latest.items())
+        text += "\n## Scorecard\n\n" + sleeves.scorecard_markdown(sleeves.score(eq), rules) + "\n"
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(text)
@@ -108,31 +116,44 @@ def cmd_report(rules: dict, args) -> None:
 def cmd_trade(rules: dict, args) -> None:
     from datetime import date
 
+    from . import engine
+
     prices = load_prices(_tickers(rules), refresh=args.refresh)
-    snap, regime, target = _today_target(rules, prices, _macro(args.refresh))
+    mom = engine.momentum_prices(rules, refresh=args.refresh)
     broker = AlpacaPaper()
     acct = broker.account()
     if acct.blocked:
         raise SystemExit("Alpaca reports the paper account is blocked; no orders sent.")
     if not args.dry_run and not broker.market_open():
         raise SystemExit("Market is closed; run during market hours so orders fill today.")
-    positions = {p.symbol: (p.market_value, p.current_price) for p in broker.positions()}
-    state = tr.load_state()
-    orders, state = tr.plan(target, acct.equity, positions, prices, rules, state, date.today())
-    print(f"Paper equity ${acct.equity:,.0f}; economy {regime.name} (cap {regime.exposure_cap:.0%}); {len(orders)} order(s)")
-    tr.execute(orders, broker, args.dry_run)
-    for o in orders:
-        print(f"  {o.side:4} {o.symbol:4} ${o.dollars:>9,.0f}  {o.status:10} {o.reason}")
-    if not args.dry_run:
-        tr.append_trades(orders)
-        tr.save_state(state)
+    out = engine.run(rules, broker, prices, mom, _macro(args.refresh), date.today(), args.dry_run)
+    print(f"Account ${acct.equity:,.0f}; economy {out['regime']['name']} (cap {out['regime']['cap']:.0%}); "
+          f"{'DRY RUN, ' if args.dry_run else ''}{len(out['orders'])} order(s)")
+    for name, v in out["values"].items():
+        print(f"  {name:9} ${v:>10,.0f}")
+    for o in out["orders"]:
+        print(f"  [{o['sleeve']}] {o['side']:4} {o['symbol']:5} ${o['dollars']:>9,.0f}  {o['status']:10} {o['reason']}")
+    opt = out["options"]
+    if opt and opt["new"]:
+        n = opt["new"]
+        print(f"  [options/{opt['mode']}] {n['underlying']} put spread {n['short_strike']:.0f}/{n['long_strike']:.0f} exp {n['expiry']}, "
+              f"credit ${n['credit'] * 100:,.0f}, max loss ${n['max_loss']:,.0f}")
+    for c in (opt or {}).get("closed", []):
+        print(f"  [options] close {c['id']}: {c['reason']}")
 
 
-def cmd_brain(rules: dict, args) -> None:
-    b = brain_mod.refresh(rules, args.refresh)
-    print(f"Brain refreshed {b['updated']}: regime {b['regime']['name']} (cap {b['regime']['equity_cap']:.0%}); "
-          f"trend {'on' if b['markets']['trend']['above_10m_average'] else 'off'}, momentum pick {b['markets']['momentum']['pick']}")
-    print(f"Wrote {brain_mod.STATE_FILE} and {brain_mod.INDICATORS_FILE}")
+def cmd_scorecard(rules: dict, args) -> None:
+    from . import sleeves
+
+    eq = sleeves.load_equity()
+    print(sleeves.scorecard_markdown(sleeves.score(eq), rules))
+
+
+def cmd_dashboard(rules: dict, args) -> None:
+    from . import dashboard
+
+    path = dashboard.build(rules, Path(args.out) if args.out else dashboard.OUTPUT)
+    print(f"Wrote {path}")
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -140,16 +161,18 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--rules", help="Path to rules.toml")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("fetch", help="Download prices and economic data")
-    for name in ("regime", "backtest", "report", "trade", "brain"):
+    for name in ("regime", "backtest", "report", "trade", "brain", "scorecard", "dashboard"):
         sp = sub.add_parser(name)
         sp.add_argument("--refresh", action="store_true", help="Re-download data first")
     sub.choices["backtest"].add_argument("--start", default="2004-01-01")
     sub.choices["backtest"].add_argument("--no-regime", action="store_true", help="Skip the economic-regime cap")
     sub.choices["report"].add_argument("--out", help="Also write the report to this file")
     sub.choices["trade"].add_argument("--dry-run", action="store_true", help="Plan orders but send nothing")
+    sub.choices["dashboard"].add_argument("--out", help="Write the dashboard HTML here (default docs/index.html)")
     args = p.parse_args(argv)
     rules = load_rules(args.rules)
-    {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain}[args.cmd](rules, args)
+    {"fetch": cmd_fetch, "regime": cmd_regime, "backtest": cmd_backtest, "report": cmd_report, "trade": cmd_trade, "brain": cmd_brain,
+     "scorecard": cmd_scorecard, "dashboard": cmd_dashboard}[args.cmd](rules, args)
 
 
 if __name__ == "__main__":

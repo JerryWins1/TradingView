@@ -25,8 +25,8 @@ class FakeBroker:
         self.calls.append(("sell", symbol, round(dollars, 2)))
         return f"sell-{symbol}"
 
-    def close_position(self, symbol):
-        self.calls.append(("close", symbol, None))
+    def sell_qty(self, symbol, qty):
+        self.calls.append(("sellqty", symbol, round(qty, 4)))
         return f"close-{symbol}"
 
 
@@ -65,6 +65,7 @@ def test_trailing_stop_closes_position(rules):
     orders, _ = plan(target(SPY=0.5, EFA=0.5), 20000, positions, prices, rules, load_state(), TODAY)
     stop = [o for o in orders if o.reason.startswith("trailing stop")]
     assert len(stop) == 1 and stop[0].close and stop[0].symbol == "SPY"
+    assert stop[0].qty == pytest.approx(10000 / 105)  # only this sleeve's shares
     assert not any(o.symbol == "SPY" and o.side == "buy" for o in orders)  # no re-buy same day
 
 
@@ -87,14 +88,14 @@ def test_circuit_breaker_sells_everything_once(rules):
 def test_execute_routes_orders_and_dry_run():
     b = FakeBroker()
     orders = [
-        Order("2026-10-19", "SPY", "sell", 1000, "trailing stop", close=True),
+        Order("2026-10-19", "SPY", "sell", 1000, "trailing stop", close=True, qty=12.5),
         Order("2026-10-19", "AGG", "sell", 500, "rebalance"),
         Order("2026-10-19", "EFA", "buy", 1500, "rebalance"),
     ]
     execute(orders, b, dry_run=True)
     assert b.calls == [] and all(o.status == "dry-run" for o in orders)
     execute(orders, b, dry_run=False)
-    assert b.calls == [("close", "SPY", None), ("sell", "AGG", 500), ("buy", "EFA", 1500)]
+    assert b.calls == [("sellqty", "SPY", 12.5), ("sell", "AGG", 500), ("buy", "EFA", 1500)]
     assert [o.order_id for o in orders] == ["close-SPY", "sell-AGG", "buy-EFA"]
     assert all(o.status == "submitted" for o in orders)
 

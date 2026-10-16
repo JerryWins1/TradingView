@@ -78,6 +78,40 @@ report reads holdings from `paper/portfolio.json`.
 
 Locally: `python -m steward trade --dry-run` plans orders without sending.
 
+## Three test beds (sleeves)
+
+One paper account, three strategies, each with its own ledger, stops and
+circuit breaker, judged against each other on a fixed schedule:
+
+| Sleeve | Capital | What it tests | Rules |
+|---|---|---|---|
+| core | $15,000 | Trend + dual momentum + economy dial (above) | `[strategy]`, `[risk]` |
+| momentum | $5,000 | Rules-based "hot stocks": the 6 strongest 12-month movers among 49 liquid large caps, refreshed monthly | `[momentum]` |
+| options | $5,000 | Defined-risk put credit spreads on SPY, 30 to 45 days out, profit at 50%, cut at 2x | `[options]` |
+
+Capital moves between sleeves only by the scorecard (`[scorecard]`): a sleeve
+must beat core on risk-adjusted return (higher Sharpe, no deeper drawdown)
+for two straight quarterly reviews to earn +25%; two straight misses cost
+25%. No experimental sleeve above half the account. Jumping to whichever
+sleeve was hot last month is exactly what the rules forbid.
+
+The options sleeve starts in `mode = "watch"`: it logs the spread it would
+sell to `paper/options_watch.csv` without sending it. Flip to `"trade"` in
+`rules.toml` after a month of watching.
+
+`python -m steward trade` runs all three; `python -m steward scorecard`
+prints the review table. Ledgers live in `paper/sleeves.json`, weekly values
+in `paper/equity.csv`.
+
+## Dashboard
+
+`python -m steward dashboard` writes `docs/index.html`: account value,
+economic regime, the economy's dials, sleeve values over time, the
+scorecard, recent orders, and the brain's notes. Plain HTML, works in light
+and dark mode and on a phone. The weekly workflow rebuilds it; turn on
+GitHub Pages (Settings, Pages, branch `main`, folder `/docs`) to get it at
+a URL.
+
 ## The brain
 
 `brain/state.md` is the current picture of the economy and markets, so a
@@ -101,7 +135,10 @@ commentary, upcoming dates, decisions and their reasons, open items.
 
 - Backtests use today's revised economic data, with publication delays applied.
 - Trades fill at the close the day after a signal; real fills differ.
-- Three liquid funds only, so no single-stock or options risk yet.
+- The options sleeve picks its short strike 6% under spot as a stand-in for
+  the ~16-delta put the method calls for; Alpaca's contract list has no delta.
+- Sleeve ledgers assume market orders fill near the quoted price; fills are
+  booked from Alpaca's own order records on the next run.
 - No forecast is reliable; the regime label is a risk dial, not a prediction.
 
 ## Roadmap
@@ -109,7 +146,7 @@ commentary, upcoming dates, decisions and their reasons, open items.
 - **Phase 1 (this):** rules, backtest, economy dashboard, weekly report.
 - **Phase 2 (built):** automatic paper trades through the Alpaca paper API,
   still with no real money. Judge it over 3 to 6 months.
-- **Phase 3:** options overlay limited to covered calls and defined-risk
-  spreads, paper only first.
+- **Phase 3 (built, watch mode):** options sleeve limited to defined-risk
+  put credit spreads on SPY, paper only, logging before trading.
 - **Phase 4:** real-money mode, gated behind the validation checklist and your
   explicit approval of each order.
