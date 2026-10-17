@@ -148,7 +148,7 @@ when `[schwab] live = true`. Schwab's refresh token lasts 7 days, so the
 weekly check-in includes `python -m steward schwab login-url` and a browser
 login. The API has no paper mode, which is why Alpaca runs the test beds.
 
-See `docs/SETUP.md` for the one-time setup steps.
+See `docs/SETUP.md` for the one-time setup steps and `docs/PLAN.md` for the full written plan.
 
 ## The brain
 
